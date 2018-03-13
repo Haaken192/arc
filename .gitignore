@@ -1,0 +1,11 @@
+.vscode/
+.idea/
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.pkg
+*.obj
+*_gen.go
