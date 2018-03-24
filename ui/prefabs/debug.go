@@ -28,14 +28,15 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/system/input"
-	"github.com/haakenlabs/forge/ui"
-	"github.com/haakenlabs/forge/ui/widget"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/input"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
+	"github.com/haakenlabs/arc/ui/widget"
 )
 
 type Debug struct {
-	forge.BaseScriptComponent
+	scene.BaseScriptComponent
 
 	labelTitle *widget.Label
 }
@@ -48,7 +49,7 @@ func (d *Debug) LateUpdate() {
 	}
 }
 
-func NewDebug(name string) *forge.GameObject {
+func NewDebug(name string) *scene.GameObject {
 	o := ui.CreateController(name + "object")
 
 	p := widget.CreatePanel(name + "-panel")
@@ -72,7 +73,7 @@ func NewDebug(name string) *forge.GameObject {
 	}
 
 	d.SetName(name + "-debug")
-	forge.GetInstance().MustAssign(d)
+	instance.MustAssign(d)
 
 	o.AddChild(p)
 	o.AddComponent(d)

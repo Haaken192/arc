@@ -24,8 +24,12 @@ package widget
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
 )
 
 var _ ui.Widget = &Image{}
@@ -36,19 +40,19 @@ type Image struct {
 	graphic *ui.Graphic
 }
 
-func (w *Image) Color() forge.Color {
+func (w *Image) Color() core.Color {
 	return w.graphic.Color()
 }
 
-func (w *Image) Texture() *forge.Texture2D {
+func (w *Image) Texture() *graphics.Texture2D {
 	return w.graphic.Texture()
 }
 
-func (w *Image) SetColor(color forge.Color) {
+func (w *Image) SetColor(color core.Color) {
 	w.graphic.SetColor(color)
 }
 
-func (w *Image) SetTexture(texture *forge.Texture2D) {
+func (w *Image) SetTexture(texture *graphics.Texture2D) {
 	w.graphic.SetTexture(texture)
 }
 
@@ -91,14 +95,14 @@ func NewImage() *Image {
 	}
 
 	w.SetName("UIImage")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	w.graphic.SetColor(ui.Styles.BackgroundColor)
 
 	return w
 }
 
-func ImageComponent(g *forge.GameObject) *Image {
+func ImageComponent(g *scene.GameObject) *Image {
 	c := g.Components()
 	for i := range c {
 		if ct, ok := c[i].(*Image); ok {
@@ -109,7 +113,7 @@ func ImageComponent(g *forge.GameObject) *Image {
 	return nil
 }
 
-func CreateImage(name string) *forge.GameObject {
+func CreateImage(name string) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	image := NewImage()
@@ -119,7 +123,7 @@ func CreateImage(name string) *forge.GameObject {
 	return object
 }
 
-func CreatePanel(name string) *forge.GameObject {
+func CreatePanel(name string) *scene.GameObject {
 	object := CreateImage(name)
 
 	rt := ui.RectTransformComponent(object)

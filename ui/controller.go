@@ -23,13 +23,17 @@ SOFTWARE.
 package ui
 
 import (
-	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/gl/v4.5-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
-	"github.com/haakenlabs/forge"
+
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/input"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/system/window"
 )
 
 type Controller struct {
-	forge.BaseScriptComponent
+	scene.BaseScriptComponent
 
 	wCache      []Widget
 	selected    Widget
@@ -70,7 +74,7 @@ func (c *Controller) GUIRender() {
 
 func (c *Controller) Resize() {
 	if c.GameObject() != nil {
-		RectTransformComponent(c.GameObject()).SetSize(forge.GetWindow().Resolution().Vec2())
+		RectTransformComponent(c.GameObject()).SetSize(window.Resolution().Vec2())
 	}
 }
 
@@ -80,17 +84,17 @@ func (c *Controller) Start() {
 }
 
 func (c *Controller) Update() {
-	if forge.GetWindow().WindowResized() {
+	if input.WindowResized() {
 		c.Resize()
 	}
-	if forge.GetWindow().HasEvents() {
+	if input.HasEvents() {
 		c.raycast()
 	}
 }
 
 func (c *Controller) raycast() {
 	var target Widget
-	pos := forge.GetWindow().MousePosition()
+	pos := input.MousePosition()
 
 	for _, v := range c.wCache {
 		if v.Raycast(pos) {
@@ -110,7 +114,7 @@ func (c *Controller) processInteractions(w Widget) {
 	// or stops it if there is a mouse_up event.
 	if c.selected != nil {
 		if c.selected.Dragging() {
-			if forge.GetWindow().MouseUp(glfw.MouseButton1) {
+			if input.MouseUp(glfw.MouseButton1) {
 				c.selected.HandleEvent(EventDragEnd)
 			} else {
 				c.selected.HandleEvent(EventDrag)
@@ -139,7 +143,7 @@ func (c *Controller) processInteractions(w Widget) {
 	// This step does selection handling, and starts a dragging sequence if the
 	// target object allows dragging. Selection changes are triggered by
 	// mouse_down events.
-	if forge.GetWindow().MouseDown(glfw.MouseButton1) {
+	if input.MouseDown(glfw.MouseButton1) {
 		if w != nil {
 			if w != c.selected {
 				prev := c.selected
@@ -160,7 +164,7 @@ func (c *Controller) processInteractions(w Widget) {
 			}
 			c.selected = nil
 		}
-	} else if forge.GetWindow().MouseUp(glfw.MouseButton1) {
+	} else if input.MouseUp(glfw.MouseButton1) {
 		// Click Check
 		//---------------------------------------------------------------------
 		// If we got this far and a mouse_up event is detected, it should be
@@ -168,7 +172,7 @@ func (c *Controller) processInteractions(w Widget) {
 		if w != nil {
 			c.highlighted.HandleEvent(EventClick)
 		}
-	} else if forge.GetWindow().MouseWheel() {
+	} else if input.MouseWheel() {
 		if w != nil {
 			c.highlighted.HandleEvent(EventMouseWheel)
 		}
@@ -179,12 +183,12 @@ func NewController() *Controller {
 	c := &Controller{}
 
 	c.SetName("UIController")
-	forge.GetInstance().MustAssign(c)
+	instance.MustAssign(c)
 
 	return c
 }
 
-func CreateController(name string) *forge.GameObject {
+func CreateController(name string) *scene.GameObject {
 	object := CreateGenericObject(name)
 
 	controller := NewController()

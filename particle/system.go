@@ -23,30 +23,28 @@ SOFTWARE.
 package particle
 
 import (
-	//"fmt"
+	"fmt"
 	"math"
 
-	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/gl/v4.5-core/gl"
+	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 
-	"fmt"
-
-	"forge"
-
-	"github.com/go-gl/glfw/v3.2/glfw"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/scene"
 	"github.com/haakenlabs/arc/system/input"
 	"github.com/haakenlabs/arc/system/instance"
-	"github.com/haakenlabs/forge"
+	"github.com/haakenlabs/arc/system/time"
 )
 
-var _ forge.Renderer = &System{}
+var _ scene.Drawable = &System{}
 
 const (
 	workgroupSize = uint32(128)
 )
 
 type System struct {
-	forge.BaseScriptComponent
+	scene.BaseScriptComponent
 
 	Core     *ModuleCore
 	Emission *ModuleEmission
@@ -68,14 +66,14 @@ func (s *System) SupportsDeferred() bool {
 	return false
 }
 
-func (s *System) RenderShader(shader *forge.Shader, camera *forge.Camera) {
-	s.Render(camera)
+func (s *System) DrawShader(shader *graphics.Shader, camera *scene.Camera) {
+	s.Draw(camera)
 	shader.Bind()
 }
 
 func (s *System) Simulate() {
 
-	deltaTime := float32(forge.GetTime().DeltaTime()) * s.Core.PlaybackSpeed
+	deltaTime := float32(time.DeltaTime()) * s.Core.PlaybackSpeed
 
 	// Lifecycle Phase
 	s.Core.lifecycleShader.Bind()
@@ -89,7 +87,7 @@ func (s *System) Simulate() {
 	s.Core.lifecycleShader.SetUniform("u_angular_velocity_3d", mgl32.Vec3{})
 	s.Core.lifecycleShader.SetUniform("u_rotation", mgl32.Vec3{})
 	s.Core.lifecycleShader.SetUniform("u_position", mgl32.Vec3{})
-	s.Core.lifecycleShader.SetUniform("u_random_seed", uint32(forge.GetTime().Frame())^s.Core.RandomSeed)
+	s.Core.lifecycleShader.SetUniform("u_random_seed", uint32(time.Frame())^s.Core.RandomSeed)
 	s.Core.lifecycleShader.SetUniform("u_angular_velocity", 0.0)
 	s.Core.lifecycleShader.SetUniform("u_start_lifetime", s.Core.StartLifetime)
 	s.Core.lifecycleShader.SetUniform("u_start_size", s.Core.StartSize)
@@ -100,7 +98,7 @@ func (s *System) Simulate() {
 	if s.Core.alive > 0 {
 		//fmt.Println("task_lifetime")
 		// Compute lifetime
-		s.Core.lifecycleShader.SetSubroutine(forge.ShaderComponentCompute, "task_lifetime")
+		s.Core.lifecycleShader.SetSubroutine(graphics.ShaderComponentCompute, "task_lifetime")
 		s.Core.lifecycleShader.SetUniform("u_invocations", s.Core.alive)
 
 		gl.DispatchCompute((s.Core.alive/workgroupSize)+1, 1, 1)
@@ -115,7 +113,7 @@ func (s *System) Simulate() {
 			emitNow = s.Core.dead
 		}
 
-		s.Core.lifecycleShader.SetSubroutine(forge.ShaderComponentCompute, "task_emit")
+		s.Core.lifecycleShader.SetSubroutine(graphics.ShaderComponentCompute, "task_emit")
 		s.Core.lifecycleShader.SetUniform("u_invocations", emitNow)
 
 		gl.DispatchCompute((emitNow/workgroupSize)+1, 1, 1)
@@ -186,9 +184,9 @@ func (s *System) Update() {
 	}
 }
 
-func (s *System) Render(camera *forge.Camera) {
+func (s *System) Draw(camera *scene.Camera) {
 	if s.Renderer != nil {
-		s.Renderer.Render(camera)
+		s.Renderer.Draw(camera)
 	}
 }
 

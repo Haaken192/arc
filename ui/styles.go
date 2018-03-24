@@ -27,32 +27,32 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/haakenlabs/forge"
+	"github.com/haakenlabs/arc/core"
 )
 
 type StyleSet struct {
-	BackgroundColor     forge.Color `json:"background_color"`
-	TextColor           forge.Color `json:"text_color"`
-	TextColorPrimary    forge.Color `json:"text_color_primary"`
-	TextColorActive     forge.Color `json:"text_color_active"`
-	TextColorDisabled   forge.Color `json:"text_color_disabled"`
-	WidgetColor         forge.Color `json:"widget_color"`
-	WidgetColorPrimary  forge.Color `json:"widget_color_primary"`
-	WidgetColorActive   forge.Color `json:"widget_color_active"`
-	WidgetColorDisabled forge.Color `json:"widget_color_disabled"`
-	TextSize            int32       `json:"text_size"`
+	BackgroundColor     core.Color `json:"background_color"`
+	TextColor           core.Color `json:"text_color"`
+	TextColorPrimary    core.Color `json:"text_color_primary"`
+	TextColorActive     core.Color `json:"text_color_active"`
+	TextColorDisabled   core.Color `json:"text_color_disabled"`
+	WidgetColor         core.Color `json:"widget_color"`
+	WidgetColorPrimary  core.Color `json:"widget_color_primary"`
+	WidgetColorActive   core.Color `json:"widget_color_active"`
+	WidgetColorDisabled core.Color `json:"widget_color_disabled"`
+	TextSize            int32      `json:"text_size"`
 }
 
 var Styles = StyleSet{
-	BackgroundColor:     forge.Color{0.1, 0.1, 0.1, 0.9},
-	TextColor:           forge.Color{1.0, 1.0, 1.0, 0.9},
-	TextColorActive:     forge.Color{1.0, 1.0, 1.0, 0.9},
-	TextColorPrimary:    forge.Color{0.0, 0.27, 0.68, 0.9},
-	TextColorDisabled:   forge.Color{0.5, 0.5, 0.5, 0.5},
-	WidgetColor:         forge.Color{0.15, 0.15, 0.15, 0.9},
-	WidgetColorPrimary:  forge.Color{0.0, 0.27, 0.68, 0.9},
-	WidgetColorActive:   forge.Color{0.17, 0.17, 0.17, 1.0},
-	WidgetColorDisabled: forge.Color{0.1, 0.1, 0.1, 0.5},
+	BackgroundColor:     core.Color{0.1, 0.1, 0.1, 0.9},
+	TextColor:           core.Color{1.0, 1.0, 1.0, 0.9},
+	TextColorActive:     core.Color{1.0, 1.0, 1.0, 0.9},
+	TextColorPrimary:    core.Color{0.0, 0.27, 0.68, 0.9},
+	TextColorDisabled:   core.Color{0.5, 0.5, 0.5, 0.5},
+	WidgetColor:         core.Color{0.15, 0.15, 0.15, 0.9},
+	WidgetColorPrimary:  core.Color{0.0, 0.27, 0.68, 0.9},
+	WidgetColorActive:   core.Color{0.17, 0.17, 0.17, 1.0},
+	WidgetColorDisabled: core.Color{0.1, 0.1, 0.1, 0.5},
 	TextSize:            11,
 }
 

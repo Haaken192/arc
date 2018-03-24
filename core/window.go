@@ -25,7 +25,7 @@ package core
 import (
 	"fmt"
 
-	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/gl/v4.5-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/sirupsen/logrus"
@@ -112,7 +112,7 @@ func (w *WindowSystem) Setup() (err error) {
 
 	glfw.WindowHint(glfw.Resizable, glfw.True)
 	glfw.WindowHint(glfw.ContextVersionMajor, 4)
-	glfw.WindowHint(glfw.ContextVersionMinor, 3)
+	glfw.WindowHint(glfw.ContextVersionMinor, 5)
 	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
 
@@ -307,8 +307,9 @@ func (w *WindowSystem) SetDisplayMode(mode DisplayMode) {
 }
 
 func (w *WindowSystem) GetVideoModes() {
+	var modes []*glfw.VidMode
+
 	monitors := glfw.GetMonitors()
-	modes := []*glfw.VidMode{}
 
 	for i := range monitors {
 		modes = append(modes, monitors[i].GetVideoModes()...)

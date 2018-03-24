@@ -30,8 +30,9 @@ import (
 	"path"
 	"sync"
 
-	"github.com/haakenlabs/arc/internal/builtin"
 	"github.com/sirupsen/logrus"
+
+	"github.com/haakenlabs/arc/internal/builtin"
 )
 
 const SysNameAsset = "asset"

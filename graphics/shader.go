@@ -29,9 +29,10 @@ import (
 
 	"github.com/go-gl/gl/v4.5-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
+	"github.com/sirupsen/logrus"
+
 	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/system/instance"
-	"github.com/sirupsen/logrus"
 )
 
 type ShaderComponent uint32
@@ -260,7 +261,7 @@ func containsShaderType(shaderType ShaderComponent, data []byte) bool {
 }
 
 func loadComponent(programId uint32, componentType ShaderComponent, data []byte) (uint32, error) {
-	header := []byte("#version 430\n")
+	header := []byte("#version 450\n")
 
 	switch componentType {
 	case ShaderComponentVertex:
@@ -322,21 +323,14 @@ func ShaderComponentToString(component ShaderComponent) string {
 	return "INVALID"
 }
 
-func NewShader() *Shader {
+func NewShader(deferred bool) *Shader {
 	s := &Shader{
-		components: make(map[ShaderComponent]uint32),
+		components:      make(map[ShaderComponent]uint32),
+		deferredCapable: deferred,
 	}
 
 	s.SetName("Shader")
 	instance.MustAssign(s)
 
 	return s
-}
-
-func NewShaderUtilsCopy() *Shader {
-	return GetAsset().MustGet(AssetNameShader, "utils/copy").(*Shader)
-}
-
-func NewShaderUtilsSkybox() *Shader {
-	return GetAsset().MustGet(AssetNameShader, "utils/skybox").(*Shader)
 }

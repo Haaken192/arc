@@ -20,8 +20,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package core
+package scene
 
-type Scene struct {
+import (
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/system/instance"
+)
 
+type Skybox struct {
+	core.BaseObject
+
+	radiance   *graphics.TextureCubemap
+	specular   *graphics.TextureCubemap
+	irradiance *graphics.TextureCubemap
+}
+
+func NewSkybox(radiance, specular, irradiance *graphics.TextureCubemap) *Skybox {
+	s := &Skybox{
+		radiance:   radiance,
+		specular:   specular,
+		irradiance: irradiance,
+	}
+
+	s.SetName("Skybox")
+	instance.MustAssign(s)
+
+	return s
+}
+
+func (s *Skybox) Radiance() *graphics.TextureCubemap {
+	return s.radiance
+}
+
+func (s *Skybox) Specular() *graphics.TextureCubemap {
+	return s.specular
+}
+
+func (s *Skybox) Irradiance() *graphics.TextureCubemap {
+	return s.irradiance
 }

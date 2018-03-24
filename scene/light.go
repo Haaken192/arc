@@ -21,3 +21,7 @@ SOFTWARE.
 */
 
 package scene
+
+type Light struct {
+	BaseComponent
+}

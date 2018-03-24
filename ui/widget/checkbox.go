@@ -24,8 +24,11 @@ package widget
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
 )
 
 type CheckState int
@@ -53,10 +56,10 @@ type Checkbox struct {
 	state      CheckState
 	eventState ui.EventType
 
-	BgColor       forge.Color
-	BgColorActive forge.Color
-	CheckMixColor forge.Color
-	CheckOnColor  forge.Color
+	BgColor       core.Color
+	BgColorActive core.Color
+	CheckMixColor core.Color
+	CheckOnColor  core.Color
 
 	onChangeFunc func(CheckState)
 
@@ -115,7 +118,7 @@ func (w *Checkbox) Redraw() {
 }
 
 func (w *Checkbox) Raycast(pos mgl32.Vec2) bool {
-	bounding := forge.NewRect(
+	bounding := core.NewRect(
 		w.RectTransform().WorldPosition().Add(w.background.Position()),
 		w.background.Size(),
 	)
@@ -156,7 +159,7 @@ func NewCheckbox() *Checkbox {
 	w.CheckOnColor = ui.Styles.WidgetColorPrimary
 
 	w.SetName("UICheckbox")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	return w
 }
@@ -165,12 +168,12 @@ func NewCheckboxGroup() *CheckboxGroup {
 	w := &CheckboxGroup{}
 
 	w.SetName("UICheckboxGroup")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	return w
 }
 
-func CheckboxComponent(g *forge.GameObject) *Checkbox {
+func CheckboxComponent(g *scene.GameObject) *Checkbox {
 	c := g.Components()
 	for i := range c {
 		if ct, ok := c[i].(*Checkbox); ok {
@@ -181,7 +184,7 @@ func CheckboxComponent(g *forge.GameObject) *Checkbox {
 	return nil
 }
 
-func CreateCheckbox(name string) *forge.GameObject {
+func CreateCheckbox(name string) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	checkbox := NewCheckbox()
@@ -198,7 +201,7 @@ func CreateCheckbox(name string) *forge.GameObject {
 	return object
 }
 
-func CreateCheckboxGroup(name string, checkboxes ...*Checkbox) *forge.GameObject {
+func CreateCheckboxGroup(name string, checkboxes ...*Checkbox) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	group := NewCheckboxGroup()

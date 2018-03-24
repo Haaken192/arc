@@ -46,6 +46,10 @@ func Now() float64 {
 	return core.GetTimeSystem().Now()
 }
 
+func Frame() uint64 {
+	return core.GetTimeSystem().Frame()
+}
+
 func FrameStart() {
 	core.GetTimeSystem().FrameStart()
 }

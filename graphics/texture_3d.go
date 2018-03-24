@@ -24,6 +24,7 @@ package graphics
 
 import (
 	"github.com/go-gl/gl/v4.5-core/gl"
+
 	"github.com/haakenlabs/arc/pkg/math"
 )
 

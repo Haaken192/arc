@@ -21,3 +21,42 @@ SOFTWARE.
 */
 
 package scene
+
+import (
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/system/asset/shader"
+)
+
+type EnvLightingSource int
+
+const (
+	EnvLightingSkybox EnvLightingSource = iota
+	EnvLightingColor
+)
+
+type EnvironmentLighting struct {
+	Source    EnvLightingSource
+	Intensity float32
+	Ambient   core.Color
+}
+
+type Environment struct {
+	DeferredShader *graphics.Shader
+	Skybox         *Skybox
+	SunSource      *Light
+}
+
+func NewEnvironment() *Environment {
+	e := &Environment{}
+
+	e.DeferredShader = shader.DefaultShader()
+	e.Skybox = DefaultSkybox()
+
+	return e
+}
+
+func DefaultSkybox() *Skybox {
+	//return GetAsset().MustGet(AssetNameSkybox, "default").(*Skybox)
+	return nil
+}

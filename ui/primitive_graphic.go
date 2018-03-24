@@ -25,8 +25,12 @@ package ui
 import (
 	"github.com/go-gl/gl/v4.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/system/asset/shader"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/asset/shader"
+	"github.com/haakenlabs/arc/system/window"
 )
 
 var _ Primitive = &Graphic{}
@@ -34,24 +38,24 @@ var _ Primitive = &Graphic{}
 type Graphic struct {
 	BasePrimitive
 
-	color       forge.Color
+	color       core.Color
 	maskLayer   uint8
 	textureMode bool
 }
 
-func (g *Graphic) SetTexture(texture *forge.Texture2D) {
+func (g *Graphic) SetTexture(texture *graphics.Texture2D) {
 	g.material.SetTexture(0, texture)
 }
 
-func (g *Graphic) SetColor(color forge.Color) {
+func (g *Graphic) SetColor(color core.Color) {
 	g.color = color
 }
 
-func (g *Graphic) Texture() *forge.Texture2D {
-	return g.material.Texture(0).(*forge.Texture2D)
+func (g *Graphic) Texture() *graphics.Texture2D {
+	return g.material.Texture(0).(*graphics.Texture2D)
 }
 
-func (g *Graphic) Color() forge.Color {
+func (g *Graphic) Color() core.Color {
 	return g.color
 }
 
@@ -73,7 +77,7 @@ func (g *Graphic) Draw(matrix mgl32.Mat4) {
 	g.material.Bind()
 	g.mesh.Bind()
 
-	g.material.SetProperty("v_ortho_matrix", forge.GetWindow().OrthoMatrix())
+	g.material.SetProperty("v_ortho_matrix", window.OrthoMatrix())
 	g.material.SetProperty("v_model_matrix", matrix.Mul4(g.rect.Matrix()))
 	g.material.SetProperty("f_texture_mode", g.textureMode)
 	g.material.SetProperty("f_alpha", float32(1.0))
@@ -90,10 +94,10 @@ func (g *Graphic) Draw(matrix mgl32.Mat4) {
 
 func NewGraphic() *Graphic {
 	g := &Graphic{
-		color: forge.ColorWhite,
+		color: core.ColorWhite,
 	}
 
-	g.material = forge.NewMaterial()
+	g.material = scene.NewMaterial()
 	g.material.SetShader(shader.MustGet("ui/basic"))
 
 	g.mesh = NewMesh()

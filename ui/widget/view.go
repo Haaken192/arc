@@ -2,7 +2,8 @@ package widget
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/ui"
 )
 
 var _ ui.Widget = &View{}

@@ -22,10 +22,10 @@ SOFTWARE.
 
 package ui
 
-import "github.com/haakenlabs/forge"
+import "github.com/haakenlabs/arc/scene"
 
 type Component interface {
-	forge.ScriptComponent
+	scene.ScriptComponent
 
 	OnCanvasChanged()
 	CanvasChanged()
@@ -34,7 +34,7 @@ type Component interface {
 }
 
 type BaseComponent struct {
-	forge.BaseScriptComponent
+	scene.BaseScriptComponent
 }
 
 func (c *BaseComponent) OnCanvasChanged() {}
@@ -51,8 +51,8 @@ func (c *BaseComponent) RectTransform() *RectTransform {
 	return c.GameObject().Transform().(*RectTransform)
 }
 
-func CreateGenericObject(name string) *forge.GameObject {
-	object := forge.NewGameObject(name)
+func CreateGenericObject(name string) *scene.GameObject {
+	object := scene.NewGameObject(name)
 
 	object.SetTransform(NewRectTransform())
 

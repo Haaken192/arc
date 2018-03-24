@@ -27,6 +27,9 @@ import (
 
 	"fmt"
 
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/instance"
 	"github.com/haakenlabs/forge"
 )
 
@@ -65,9 +68,9 @@ const (
 )
 
 type RectTransform struct {
-	forge.BaseTransform
+	scene.BaseTransform
 
-	rect      forge.Rect
+	rect      core.Rect
 	anchorMax mgl32.Vec2
 	anchorMin mgl32.Vec2
 	offsetMax mgl32.Vec2
@@ -85,12 +88,12 @@ func NewRectTransform() *RectTransform {
 	t.SetScaleN(mgl32.Vec3{1.0, 1.0, 1.0})
 
 	t.SetName("RectTransform")
-	forge.GetInstance().MustAssign(t)
+	instance.MustAssign(t)
 
 	return t
 }
 
-func RectTransformComponent(g *forge.GameObject) *RectTransform {
+func RectTransformComponent(g *scene.GameObject) *RectTransform {
 	c := g.Components()
 	for i := range c {
 		if ct, ok := c[i].(*RectTransform); ok {
@@ -101,7 +104,7 @@ func RectTransformComponent(g *forge.GameObject) *RectTransform {
 	return nil
 }
 
-func (t *RectTransform) Rect() forge.Rect {
+func (t *RectTransform) Rect() core.Rect {
 	return t.rect
 }
 
@@ -133,7 +136,7 @@ func (t *RectTransform) Autosize() bool {
 	return t.autoSize
 }
 
-func (t *RectTransform) SetRect(rect forge.Rect) {
+func (t *RectTransform) SetRect(rect core.Rect) {
 	t.rect = rect
 	t.ComputeOffsets()
 	t.Recompute(true)

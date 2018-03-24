@@ -24,8 +24,11 @@ package widget
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
 )
 
 const (
@@ -42,9 +45,9 @@ type Textbox struct {
 
 	state ui.EventType
 
-	WidgetColor       forge.Color
-	WidgetColorActive forge.Color
-	TextColor         forge.Color
+	WidgetColor       core.Color
+	WidgetColorActive core.Color
+	TextColor         core.Color
 
 	onChangeFunc func(string)
 
@@ -96,12 +99,12 @@ func NewTextbox() *Textbox {
 	}
 
 	w.SetName("UITextbox")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	return w
 }
 
-func CreateTextbox(name string) *forge.GameObject {
+func CreateTextbox(name string) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	textbox := NewTextbox()

@@ -22,7 +22,11 @@ SOFTWARE.
 
 package scene
 
-import "github.com/go-gl/mathgl/mgl32"
+import (
+	"github.com/go-gl/mathgl/mgl32"
+
+	"github.com/haakenlabs/arc/system/instance"
+)
 
 // Transform is a component which handles scale, rotation, and
 // position transformations.
@@ -136,7 +140,7 @@ func NewTransform() *BaseTransform {
 	}
 
 	t.SetName("Transform")
-	GetInstance().MustAssign(t)
+	instance.MustAssign(t)
 
 	t.Recompute(false)
 

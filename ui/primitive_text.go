@@ -23,11 +23,15 @@ SOFTWARE.
 package ui
 
 import (
-	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/gl/v4.5-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/system/asset/font"
-	"github.com/haakenlabs/forge/system/asset/shader"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/asset/font"
+	"github.com/haakenlabs/arc/system/asset/shader"
+	"github.com/haakenlabs/arc/system/window"
 )
 
 var _ Primitive = &Text{}
@@ -35,14 +39,14 @@ var _ Primitive = &Text{}
 type Text struct {
 	BasePrimitive
 
-	font      *forge.Font
+	font      *graphics.Font
 	fontSize  int32
-	color     forge.Color
+	color     core.Color
 	value     string
 	maskLayer uint8
 }
 
-func (t *Text) Font() *forge.Font {
+func (t *Text) Font() *graphics.Font {
 	return t.font
 }
 
@@ -54,7 +58,7 @@ func (t *Text) Value() string {
 	return t.value
 }
 
-func (t *Text) SetFont(font *forge.Font) {
+func (t *Text) SetFont(font *graphics.Font) {
 	t.font = font
 }
 
@@ -69,11 +73,11 @@ func (t *Text) SetValue(value string) {
 	t.value = value
 }
 
-func (t *Text) SetColor(color forge.Color) {
+func (t *Text) SetColor(color core.Color) {
 	t.color = color
 }
 
-func (t *Text) Color() forge.Color {
+func (t *Text) Color() core.Color {
 	return t.color
 }
 
@@ -99,7 +103,7 @@ func (t *Text) Draw(matrix mgl32.Mat4) {
 	t.material.Bind()
 	t.mesh.Bind()
 
-	t.material.SetProperty("v_ortho_matrix", forge.GetWindow().OrthoMatrix())
+	t.material.SetProperty("v_ortho_matrix", window.OrthoMatrix())
 	t.material.SetProperty("v_model_matrix", matrix.Mul4(t.rect.Matrix()))
 	t.material.SetProperty("f_alpha", float32(1.0))
 	t.material.SetProperty("f_color", t.color.Vec4())
@@ -119,7 +123,7 @@ func NewText() *Text {
 		fontSize: Styles.TextSize,
 	}
 
-	t.material = forge.NewMaterial()
+	t.material = scene.NewMaterial()
 	t.material.SetShader(shader.MustGet("ui/text"))
 
 	t.font = font.MustGet("SourceCodePro-Regular.ttf")

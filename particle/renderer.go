@@ -23,20 +23,21 @@ SOFTWARE.
 package particle
 
 import (
-	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/gl/v4.5-core/gl"
 
-	"forge"
-
-	"github.com/haakenlabs/forge"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/asset/shader"
+	"github.com/haakenlabs/arc/system/asset/texture"
 )
 
 type ModuleRenderer struct {
 	system       *System
-	renderShader *forge.Shader
-	sprite       *forge.Texture2D
+	renderShader *graphics.Shader
+	sprite       *graphics.Texture2D
 }
 
-func (m *ModuleRenderer) Render(camera *forge.Camera) {
+func (m *ModuleRenderer) Draw(camera *scene.Camera) {
 	m.system.Simulate()
 
 	m.renderShader.Bind()
@@ -66,8 +67,8 @@ func NewModuleRenderer(system *System) *ModuleRenderer {
 		system: system,
 	}
 
-	m.renderShader = forge.GetAsset().MustGet(forge.AssetNameShader, "particle/render").(*forge.Shader)
-	m.sprite = forge.GetAsset().MustGet(forge.AssetNameImage, "particle.png").(*forge.Texture2D)
+	m.renderShader = shader.MustGet("particle/render")
+	m.sprite = texture.MustGet("particle.png")
 
 	return m
 }

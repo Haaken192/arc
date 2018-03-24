@@ -24,8 +24,11 @@ package widget
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
 )
 
 type RadioState int
@@ -53,13 +56,13 @@ type Radio struct {
 	state      RadioState
 	eventState ui.EventType
 
-	BgColor       forge.Color
-	BgColorActive forge.Color
-	RadioMixColor forge.Color
-	RadioOnColor  forge.Color
+	BgColor       core.Color
+	BgColorActive core.Color
+	RadioMixColor core.Color
+	RadioOnColor  core.Color
 
-	backgroundColor forge.Color
-	tint            forge.Color
+	backgroundColor core.Color
+	tint            core.Color
 
 	onChangeFunc func(RadioState)
 
@@ -114,7 +117,7 @@ func (w *Radio) Redraw() {
 }
 
 func (w *Radio) Raycast(pos mgl32.Vec2) bool {
-	bounding := forge.NewRect(
+	bounding := core.NewRect(
 		w.RectTransform().WorldPosition().Add(w.background.Position()),
 		w.background.Size(),
 	)
@@ -150,7 +153,7 @@ func NewRadio() *Radio {
 	w := &Radio{}
 
 	w.SetName("UIRadio")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	return w
 }
@@ -159,12 +162,12 @@ func NewRadioGroup() *RadioGroup {
 	w := &RadioGroup{}
 
 	w.SetName("UIRadioGroup")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	return w
 }
 
-func CreateRadio(name string) *forge.GameObject {
+func CreateRadio(name string) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	radio := NewRadio()
@@ -181,7 +184,7 @@ func CreateRadio(name string) *forge.GameObject {
 	return object
 }
 
-func CreateRadioGroup(name string, radios ...*Radio) *forge.GameObject {
+func CreateRadioGroup(name string, radios ...*Radio) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	group := NewRadioGroup()

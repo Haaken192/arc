@@ -48,6 +48,7 @@ type GameObject struct {
 	components []Component
 	children   []*GameObject
 	parent     *GameObject
+	scene      *Scene
 	active     bool
 }
 
@@ -63,6 +64,10 @@ func (g *GameObject) SetActive(active bool) {
 		//	g.graph.SetDirty()
 		//}
 	}
+}
+
+func (g *GameObject) Scene() *Scene {
+	return g.scene
 }
 
 func (g *GameObject) Transform() Transform {

@@ -23,10 +23,9 @@ SOFTWARE.
 package core
 
 import (
-	"sync"
-
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 
 	"github.com/juju/errors"

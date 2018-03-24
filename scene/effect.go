@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2017 HaakenLabs
+Copyright (c) 2018 HaakenLabs
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,23 +20,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package image
+package scene
 
-import "github.com/haakenlabs/forge"
+type EffectType uint8
 
-func Get(name string) (*forge.Texture2D, error) {
-	return mustHandler().Get(name)
+const (
+	EffectTypeAny EffectType = iota
+	EffectTypeHDR
+	EffectTypeLDR
+	EffectTypeTonemapper
+)
+
+// EffectWriter is an interface for Image Effect rendering. This is typically
+// attached to a renderer such as a camera. The EffectWriter is responsible for
+// rendering different types of effects
+type EffectWriter interface {
+	EffectPass()
 }
 
-func MustGet(name string) *forge.Texture2D {
-	return mustHandler().MustGet(name)
-}
-
-func mustHandler() *forge.ImageHandler {
-	h, err := forge.GetAsset().GetHandler(forge.AssetNameImage)
-	if err != nil {
-		panic(err)
-	}
-
-	return h.(*forge.ImageHandler)
+type Effect interface {
+	Render(EffectWriter)
+	Type() EffectType
 }

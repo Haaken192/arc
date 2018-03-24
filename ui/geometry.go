@@ -24,7 +24,8 @@ package ui
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
+
+	"github.com/haakenlabs/arc/core"
 )
 
 type Alignment uint8
@@ -41,7 +42,7 @@ const (
 	AlignmentBottomRight
 )
 
-func Align(rect, parent forge.Rect, alignment Alignment) mgl32.Vec2 {
+func Align(rect, parent core.Rect, alignment Alignment) mgl32.Vec2 {
 	offset := mgl32.Vec2{}
 	dot := mgl32.Vec2{}
 

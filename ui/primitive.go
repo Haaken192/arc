@@ -24,16 +24,18 @@ package ui
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
 )
 
 type Primitive interface {
-	Rect() forge.Rect
+	Rect() core.Rect
 	Draw(mgl32.Mat4)
 	Refresh()
 	Position() mgl32.Vec2
 	Size() mgl32.Vec2
-	SetRect(forge.Rect)
+	SetRect(core.Rect)
 	SetSize(mgl32.Vec2)
 	SetPosition(mgl32.Vec2)
 }
@@ -41,16 +43,16 @@ type Primitive interface {
 var _ Primitive = &BasePrimitive{}
 
 type BasePrimitive struct {
-	rect     forge.Rect
-	material *forge.Material
+	rect     core.Rect
+	material *scene.Material
 	mesh     *Mesh
 }
 
-func (p *BasePrimitive) Rect() forge.Rect {
+func (p *BasePrimitive) Rect() core.Rect {
 	return p.rect
 }
 
-func (p *BasePrimitive) SetRect(rect forge.Rect) {
+func (p *BasePrimitive) SetRect(rect scene.Rect) {
 	p.rect = rect
 	p.Refresh()
 }
@@ -75,7 +77,7 @@ func (p *BasePrimitive) Refresh() {}
 
 func (p *BasePrimitive) Draw(mgl32.Mat4) {}
 
-func (p *BasePrimitive) SetMaterial(material *forge.Material) {
+func (p *BasePrimitive) SetMaterial(material *scene.Material) {
 	p.material = material
 }
 
@@ -87,6 +89,6 @@ func (p *BasePrimitive) Mesh() *Mesh {
 	return p.mesh
 }
 
-func (p *BasePrimitive) Shader() *forge.Material {
+func (p *BasePrimitive) Shader() *scene.Material {
 	return p.material
 }

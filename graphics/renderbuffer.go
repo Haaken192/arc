@@ -21,3 +21,68 @@ SOFTWARE.
 */
 
 package graphics
+
+import (
+	"github.com/go-gl/gl/v4.5-core/gl"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/pkg/math"
+	"github.com/haakenlabs/arc/system/instance"
+)
+
+type RenderBuffer struct {
+	core.BaseObject
+
+	size           math.IVec2
+	reference      uint32
+	internalFormat uint32
+}
+
+func NewRenderBuffer(size math.IVec2, format TextureFormat) *RenderBuffer {
+	return NewRenderBufferIntFmt(size, uint32(TextureFormatToInternal(format)))
+}
+
+func NewRenderBufferIntFmt(size math.IVec2, internalFormat uint32) *RenderBuffer {
+	r := &RenderBuffer{
+		size:           size,
+		internalFormat: internalFormat,
+	}
+
+	r.SetName("RenderBuffer")
+	instance.MustAssign(r)
+
+	gl.GenRenderbuffers(1, &r.reference)
+
+	r.Allocate()
+
+	return r
+}
+
+func (r *RenderBuffer) Release() {
+	if r.reference != 0 {
+		gl.DeleteRenderbuffers(1, &r.reference)
+		r.reference = 0
+	}
+}
+
+func (r *RenderBuffer) Reference() uint32 {
+	return r.reference
+}
+
+func (r *RenderBuffer) Allocate() {
+	gl.BindRenderbuffer(gl.RENDERBUFFER, r.reference)
+	gl.RenderbufferStorage(gl.RENDERBUFFER, r.internalFormat, r.size.X(), r.size.Y())
+}
+
+func (r *RenderBuffer) Attach(location uint32) {
+	gl.FramebufferRenderbuffer(gl.FRAMEBUFFER, location, gl.RENDERBUFFER, r.reference)
+}
+
+func (r *RenderBuffer) SetSize(size math.IVec2) {
+	r.size = size
+	r.Allocate()
+}
+
+func (r *RenderBuffer) Size() math.IVec2 {
+	return r.size
+}

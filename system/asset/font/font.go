@@ -23,10 +23,10 @@ SOFTWARE.
 package font
 
 import (
-	"forge"
 	"sync"
 
 	"github.com/golang/freetype/truetype"
+
 	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/graphics"
 	"github.com/haakenlabs/arc/system/asset"
@@ -55,15 +55,15 @@ func (h *Handler) Load(r *core.Resource) error {
 		return err
 	}
 
-	f := graphics.NewFont(ttf, ASCII)
+	f := graphics.NewFont(ttf, graphics.ASCII)
 	f.SetName(name)
 
 	return h.Add(name, f)
 }
 
-func (h *FontHandler) Add(name string, font *Font) error {
+func (h *Handler) Add(name string, font *graphics.Font) error {
 	if _, dup := h.Items[name]; dup {
-		return ErrAssetExists(name)
+		return core.ErrAssetExists(name)
 	}
 
 	if err := font.Alloc(); err != nil {
@@ -76,22 +76,22 @@ func (h *FontHandler) Add(name string, font *Font) error {
 }
 
 // Get gets an asset by name.
-func (h *FontHandler) Get(name string) (*Font, error) {
+func (h *Handler) Get(name string) (*graphics.Font, error) {
 	a, err := h.GetAsset(name)
 	if err != nil {
 		return nil, err
 	}
 
-	a2, ok := a.(*Font)
+	a2, ok := a.(*graphics.Font)
 	if !ok {
-		return nil, ErrAssetType(name)
+		return nil, core.ErrAssetType(name)
 	}
 
 	return a2, nil
 }
 
 // MustGet is like GetAsset, but panics if an error occurs.
-func (h *FontHandler) MustGet(name string) *Font {
+func (h *Handler) MustGet(name string) *graphics.Font {
 	a, err := h.Get(name)
 	if err != nil {
 		panic(err)
@@ -100,12 +100,12 @@ func (h *FontHandler) MustGet(name string) *Font {
 	return a
 }
 
-func (h *FontHandler) Name() string {
+func (h *Handler) Name() string {
 	return AssetNameFont
 }
 
-func NewFontHandler() *FontHandler {
-	h := &FontHandler{}
+func NewFontHandler() *Handler {
+	h := &Handler{}
 	h.Items = make(map[string]int32)
 	h.Mu = &sync.RWMutex{}
 
@@ -120,11 +120,11 @@ func MustGet(name string) *graphics.Font {
 	return mustHandler().MustGet(name)
 }
 
-func mustHandler() *graphics.FontHandler {
-	h, err := asset.GetHandler(forge.AssetNameFont)
+func mustHandler() *Handler {
+	h, err := asset.GetHandler(AssetNameFont)
 	if err != nil {
 		panic(err)
 	}
 
-	return h.(*forge.FontHandler)
+	return h.(*Handler)
 }

@@ -22,21 +22,146 @@ SOFTWARE.
 
 package shader
 
-import "github.com/haakenlabs/forge"
+import (
+	"encoding/json"
+	"io/ioutil"
+	"path/filepath"
+	"sync"
 
-func Get(name string) (*forge.Shader, error) {
-	return mustHandler().Get(name)
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/system/asset"
+)
+
+const (
+	AssetNameShader = "shader"
+)
+
+var _ core.AssetHandler = &Handler{}
+
+type Handler struct {
+	core.BaseAssetHandler
 }
 
-func MustGet(name string) *forge.Shader {
-	return mustHandler().MustGet(name)
+type Metadata struct {
+	Name     string   `json:"name"`
+	Deferred bool     `json:"deferred"`
+	Files    []string `json:"files"`
 }
 
-func mustHandler() *forge.ShaderHandler {
-	h, err := forge.GetAsset().GetHandler(forge.AssetNameShader)
+// Load will load data from the reader.
+func (h *Handler) Load(r *core.Resource) error {
+	m := &Metadata{}
+
+	data, err := ioutil.ReadAll(r.Reader())
+	if err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(data, m); err != nil {
+		return err
+	}
+	name := m.Name
+	if _, dup := h.Items[name]; dup {
+		return core.ErrAssetExists(name)
+	}
+
+	s := graphics.NewShader(m.Deferred)
+
+	s.SetName(m.Name)
+
+	// Populate shader data.
+	for i := range m.Files {
+		r, err := core.NewResource(filepath.Join(r.DirPrefix(), m.Files[i]))
+		if err != nil {
+			return err
+		}
+		if err := asset.ReadResource(r); err != nil {
+			return err
+		}
+
+		s.AddData(r.Bytes())
+	}
+
+	return h.Add(name, s)
+}
+
+func (h *Handler) Add(name string, shader *graphics.Shader) error {
+	if _, dup := h.Items[name]; dup {
+		return core.ErrAssetExists(name)
+	}
+
+	if err := shader.Alloc(); err != nil {
+		return err
+	}
+
+	h.Items[name] = shader.ID()
+
+	return nil
+}
+
+// Get gets an asset by name.
+func (h *Handler) Get(name string) (*graphics.Shader, error) {
+	a, err := h.GetAsset(name)
+	if err != nil {
+		return nil, err
+	}
+
+	a2, ok := a.(*graphics.Shader)
+	if !ok {
+		return nil, core.ErrAssetType(name)
+	}
+
+	return a2, nil
+}
+
+// MustGet is like GetAsset, but panics if an error occurs.
+func (h *Handler) MustGet(name string) *graphics.Shader {
+	a, err := h.Get(name)
 	if err != nil {
 		panic(err)
 	}
 
-	return h.(*forge.ShaderHandler)
+	return a
+}
+
+func (h *Handler) Name() string {
+	return AssetNameShader
+}
+
+func NewShaderHandler() *Handler {
+	h := &Handler{}
+	h.Items = make(map[string]int32)
+	h.Mu = &sync.RWMutex{}
+
+	return h
+}
+
+func NewShaderUtilsCopy() *graphics.Shader {
+	return MustGet("utils/copy")
+}
+
+func NewShaderUtilsSkybox() *graphics.Shader {
+	return MustGet("utils/skybox")
+}
+
+func DefaultShader() *graphics.Shader {
+	return MustGet("standard")
+}
+
+func Get(name string) (*graphics.Shader, error) {
+	return mustHandler().Get(name)
+}
+
+func MustGet(name string) *graphics.Shader {
+	return mustHandler().MustGet(name)
+}
+
+func mustHandler() *Handler {
+	h, err := asset.GetHandler(AssetNameShader)
+	if err != nil {
+		panic(err)
+	}
+
+	return h.(*Handler)
 }

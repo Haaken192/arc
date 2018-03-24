@@ -32,13 +32,14 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
 	"github.com/golang/freetype/truetype"
-	"github.com/haakenlabs/arc/core"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 
-	fmath "github.com/haakenlabs/arc/pkg/math"
+	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/system/instance"
+
+	fmath "github.com/haakenlabs/arc/pkg/math"
 )
 
 var ASCII []rune

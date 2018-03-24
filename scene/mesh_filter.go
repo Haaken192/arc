@@ -21,3 +21,49 @@ SOFTWARE.
 */
 
 package scene
+
+import (
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/system/instance"
+)
+
+// MeshFilter is a component that allows a Mesh to be associated with an entity.
+type MeshFilter struct {
+	BaseComponent
+
+	mesh *graphics.Mesh
+}
+
+// NewMeshFilter creates a new MeshFilter component.
+func NewMeshFilter(mesh *graphics.Mesh) *MeshFilter {
+	m := &MeshFilter{
+		mesh: mesh,
+	}
+
+	m.SetName("MeshFilter")
+	instance.MustAssign(m)
+
+	return m
+}
+
+// MeshFilterComponent gets the first occurrence of MeshFilter from the entity.
+func MeshFilterComponent(g *GameObject) *MeshFilter {
+	c := g.Components()
+	for i := range c {
+		if ct, ok := c[i].(*MeshFilter); ok {
+			return ct
+		}
+	}
+
+	return nil
+}
+
+// Mesh gets the Mesh associated with this MeshFilter.
+func (m *MeshFilter) Mesh() *graphics.Mesh {
+	return m.mesh
+}
+
+// SetMesh sets the Mesh for this MeshFilter.
+func (m *MeshFilter) SetMesh(mesh *graphics.Mesh) {
+	m.mesh = mesh
+}

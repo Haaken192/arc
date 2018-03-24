@@ -24,8 +24,11 @@ package widget
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
 )
 
 var _ ui.Widget = &Button{}
@@ -35,10 +38,10 @@ var defaultButtonSize = mgl32.Vec2{96, 32}
 type Button struct {
 	ui.BaseComponent
 
-	BgColor         forge.Color
-	BgColorActive   forge.Color
-	TextColor       forge.Color
-	TextColorActive forge.Color
+	BgColor         core.Color
+	BgColorActive   core.Color
+	TextColor       core.Color
+	TextColorActive core.Color
 
 	value      string
 	eventState ui.EventType
@@ -62,7 +65,7 @@ func NewButton() *Button {
 	w.BgColorActive = ui.Styles.WidgetColorActive
 
 	w.SetName("UIButton")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	w.background.SetColor(w.BgColor)
 	w.background.SetSize(defaultButtonSize)
@@ -136,7 +139,7 @@ func (w *Button) Rearrange() {
 	w.background.Refresh()
 }
 
-func ButtonComponent(g *forge.GameObject) *Button {
+func ButtonComponent(g *scene.GameObject) *Button {
 	c := g.Components()
 	for i := range c {
 		if ct, ok := c[i].(*Button); ok {
@@ -147,7 +150,7 @@ func ButtonComponent(g *forge.GameObject) *Button {
 	return nil
 }
 
-func CreateButton(name string) *forge.GameObject {
+func CreateButton(name string) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 	rt := ui.RectTransformComponent(object)
 	rt.SetSize(defaultButtonSize)

@@ -2,8 +2,9 @@ package widget
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/ui"
 )
 
 var _ ui.Widget = &Window{}
@@ -17,8 +18,8 @@ type Window struct {
 	btnCloseBg *ui.Graphic
 	title      *ui.Text
 
-	BgColor   forge.Color
-	TextColor forge.Color
+	BgColor   core.Color
+	TextColor core.Color
 
 	dragging       bool
 	draggable      bool
@@ -37,7 +38,7 @@ func (w *Window) Dragging() bool {
 }
 
 func (w *Window) Raycast(pos mgl32.Vec2) bool {
-	bounding := forge.NewRect(
+	bounding := core.NewRect(
 		w.RectTransform().WorldPosition().Add(w.background.Position()),
 		w.background.Size(),
 	)

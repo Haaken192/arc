@@ -21,3 +21,11 @@ SOFTWARE.
 */
 
 package scene
+
+import "github.com/haakenlabs/arc/graphics"
+
+type Drawable interface {
+	Draw(*Camera)
+	DrawShader(*graphics.Shader, *Camera)
+	SupportsDeferred() bool
+}

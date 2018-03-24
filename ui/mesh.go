@@ -23,13 +23,16 @@ SOFTWARE.
 package ui
 
 import (
-	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/gl/v4.5-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/graphics"
+	"github.com/haakenlabs/arc/system/instance"
 )
 
 type Mesh struct {
-	forge.BaseObject
+	core.BaseObject
 
 	size int32
 	vao  uint32
@@ -70,7 +73,7 @@ func (m *Mesh) Unbind() {
 	gl.BindVertexArray(0)
 }
 
-func (m *Mesh) Upload(vertices []forge.Vertex) {
+func (m *Mesh) Upload(vertices []graphics.Vertex) {
 	m.size = int32(len(vertices))
 
 	m.Bind()
@@ -97,16 +100,16 @@ func NewMesh() *Mesh {
 	m := &Mesh{}
 
 	m.SetName("UIMesh")
-	forge.GetInstance().MustAssign(m)
+	instance.MustAssign(m)
 
 	return m
 }
 
-func MakeQuad(w, h float32) []forge.Vertex {
-	ul := forge.Vertex{V: mgl32.Vec3{}, U: mgl32.Vec2{0, 1}}
-	ur := forge.Vertex{V: mgl32.Vec3{w, 0, 0}, U: mgl32.Vec2{1, 1}}
-	lr := forge.Vertex{V: mgl32.Vec3{w, h, 0}, U: mgl32.Vec2{1, 0}}
-	ll := forge.Vertex{V: mgl32.Vec3{0, h, 0}, U: mgl32.Vec2{0, 0}}
+func MakeQuad(w, h float32) []graphics.Vertex {
+	ul := graphics.Vertex{V: mgl32.Vec3{}, U: mgl32.Vec2{0, 1}}
+	ur := graphics.Vertex{V: mgl32.Vec3{w, 0, 0}, U: mgl32.Vec2{1, 1}}
+	lr := graphics.Vertex{V: mgl32.Vec3{w, h, 0}, U: mgl32.Vec2{1, 0}}
+	ll := graphics.Vertex{V: mgl32.Vec3{0, h, 0}, U: mgl32.Vec2{0, 0}}
 
-	return []forge.Vertex{ul, lr, ur, ul, ll, lr}
+	return []graphics.Vertex{ul, lr, ur, ul, ll, lr}
 }

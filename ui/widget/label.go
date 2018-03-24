@@ -24,8 +24,11 @@ package widget
 
 import (
 	"github.com/go-gl/mathgl/mgl32"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
 )
 
 var _ ui.Widget = &Label{}
@@ -33,7 +36,7 @@ var _ ui.Widget = &Label{}
 type Label struct {
 	ui.BaseComponent
 
-	TextColor forge.Color
+	TextColor core.Color
 
 	text *ui.Text
 }
@@ -46,7 +49,7 @@ func NewLabel() *Label {
 	w.TextColor = ui.Styles.TextColor
 
 	w.SetName("UILabel")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	w.text.SetValue("Label")
 	w.text.SetFontSize(ui.Styles.TextSize)
@@ -107,7 +110,7 @@ func (w *Label) Redraw() {
 	w.text.Draw(m)
 }
 
-func LabelComponent(g *forge.GameObject) *Label {
+func LabelComponent(g *scene.GameObject) *Label {
 	c := g.Components()
 	for i := range c {
 		if ct, ok := c[i].(*Label); ok {
@@ -118,7 +121,7 @@ func LabelComponent(g *forge.GameObject) *Label {
 	return nil
 }
 
-func CreateLabel(name string) *forge.GameObject {
+func CreateLabel(name string) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	object.AddComponent(NewLabel())

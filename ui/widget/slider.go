@@ -27,9 +27,12 @@ import (
 
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/system/input"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/input"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
 )
 
 const (
@@ -50,9 +53,9 @@ type Slider struct {
 
 	intMode bool
 
-	WidgetColor        forge.Color
-	WidgetColorActive  forge.Color
-	WidgetColorPrimary forge.Color
+	WidgetColor        core.Color
+	WidgetColorActive  core.Color
+	WidgetColorPrimary core.Color
 
 	onChangeFunc func(float64)
 
@@ -227,12 +230,12 @@ func NewSlider() *Slider {
 	w.WidgetColorPrimary = ui.Styles.WidgetColorPrimary
 
 	w.SetName("UISlider")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	return w
 }
 
-func SliderComponent(g *forge.GameObject) *Slider {
+func SliderComponent(g *scene.GameObject) *Slider {
 	c := g.Components()
 	for i := range c {
 		if ct, ok := c[i].(*Slider); ok {
@@ -243,7 +246,7 @@ func SliderComponent(g *forge.GameObject) *Slider {
 	return nil
 }
 
-func CreateSlider(name string) *forge.GameObject {
+func CreateSlider(name string) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	slider := NewSlider()

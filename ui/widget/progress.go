@@ -27,8 +27,11 @@ import (
 
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/go-gl/mathgl/mgl64"
-	"github.com/haakenlabs/forge"
-	"github.com/haakenlabs/forge/ui"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/ui"
 )
 
 const defaultProgressHeight = float32(10)
@@ -40,8 +43,8 @@ type Progress struct {
 
 	progress float64
 
-	WidgetColor       forge.Color
-	WidgetColorActive forge.Color
+	WidgetColor       core.Color
+	WidgetColorActive core.Color
 
 	onChangeFunc func(float64)
 
@@ -100,12 +103,12 @@ func NewProgress() *Progress {
 	w.WidgetColorActive = ui.Styles.WidgetColorPrimary
 
 	w.SetName("UIProgress")
-	forge.GetInstance().MustAssign(w)
+	instance.MustAssign(w)
 
 	return w
 }
 
-func ProgressComponent(g *forge.GameObject) *Progress {
+func ProgressComponent(g *scene.GameObject) *Progress {
 	c := g.Components()
 	for i := range c {
 		if ct, ok := c[i].(*Progress); ok {
@@ -116,7 +119,7 @@ func ProgressComponent(g *forge.GameObject) *Progress {
 	return nil
 }
 
-func CreateProgress(name string) *forge.GameObject {
+func CreateProgress(name string) *scene.GameObject {
 	object := ui.CreateGenericObject(name)
 
 	progress := NewProgress()
