@@ -21,3 +21,51 @@ SOFTWARE.
 */
 
 package ui
+
+type EventType int
+
+const (
+	EventUnknown EventType = iota
+	EventInput
+	EventValueChanged
+	EventClick
+	EventMouseEnter
+	EventMouseLeave
+	EventMouseWheel
+	EventDragStart
+	EventDrag
+	EventDragEnd
+	EventSelect
+	EventDeselect
+)
+
+func (e EventType) String() string {
+	switch e {
+	case EventUnknown:
+		return "EventUnknown"
+	case EventInput:
+		return "EventInput"
+	case EventValueChanged:
+		return "EventValueChanged"
+	case EventClick:
+		return "EventClick"
+	case EventMouseEnter:
+		return "EventMouseEnter"
+	case EventMouseLeave:
+		return "EventMouseLeave"
+	case EventMouseWheel:
+		return "EventMouseWheel"
+	case EventDragStart:
+		return "EventDragStart"
+	case EventDrag:
+		return "EventDrag"
+	case EventDragEnd:
+		return "EventDragEnd"
+	case EventSelect:
+		return "EventSelect"
+	case EventDeselect:
+		return "EventDeselect"
+	default:
+		return "Unrecognized EventType: " + string(int(e))
+	}
+}

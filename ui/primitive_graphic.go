@@ -21,3 +21,83 @@ SOFTWARE.
 */
 
 package ui
+
+import (
+	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/haakenlabs/forge"
+	"github.com/haakenlabs/forge/system/asset/shader"
+)
+
+var _ Primitive = &Graphic{}
+
+type Graphic struct {
+	BasePrimitive
+
+	color       forge.Color
+	maskLayer   uint8
+	textureMode bool
+}
+
+func (g *Graphic) SetTexture(texture *forge.Texture2D) {
+	g.material.SetTexture(0, texture)
+}
+
+func (g *Graphic) SetColor(color forge.Color) {
+	g.color = color
+}
+
+func (g *Graphic) Texture() *forge.Texture2D {
+	return g.material.Texture(0).(*forge.Texture2D)
+}
+
+func (g *Graphic) Color() forge.Color {
+	return g.color
+}
+
+func (g *Graphic) Refresh() {
+	r := g.Rect()
+
+	verts := MakeQuad(r.Size().Elem())
+
+	g.mesh.Upload(verts)
+}
+
+func (g *Graphic) Draw(matrix mgl32.Mat4) {
+	if g.material == nil || g.mesh.size == 0 {
+		return
+	}
+
+	g.textureMode = g.material.Texture(0) != nil
+
+	g.material.Bind()
+	g.mesh.Bind()
+
+	g.material.SetProperty("v_ortho_matrix", forge.GetWindow().OrthoMatrix())
+	g.material.SetProperty("v_model_matrix", matrix.Mul4(g.rect.Matrix()))
+	g.material.SetProperty("f_texture_mode", g.textureMode)
+	g.material.SetProperty("f_alpha", float32(1.0))
+	g.material.SetProperty("f_color", g.color.Vec4())
+
+	gl.StencilFunc(gl.ALWAYS, int32(g.maskLayer), 0xFF)
+	gl.StencilMask(0)
+
+	g.mesh.Draw()
+
+	g.mesh.Unbind()
+	g.material.Unbind()
+}
+
+func NewGraphic() *Graphic {
+	g := &Graphic{
+		color: forge.ColorWhite,
+	}
+
+	g.material = forge.NewMaterial()
+	g.material.SetShader(shader.MustGet("ui/basic"))
+
+	g.mesh = NewMesh()
+	g.mesh.Alloc()
+
+	return g
+}

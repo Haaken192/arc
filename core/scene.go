@@ -20,41 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package ui
+package core
 
-import "github.com/haakenlabs/forge"
+type Scene struct {
 
-type Component interface {
-	forge.ScriptComponent
-
-	OnCanvasChanged()
-	CanvasChanged()
-	ParentChanged()
-	RectTransform() *RectTransform
-}
-
-type BaseComponent struct {
-	forge.BaseScriptComponent
-}
-
-func (c *BaseComponent) OnCanvasChanged() {}
-
-func (c *BaseComponent) OnTransformChanged() {}
-
-func (c *BaseComponent) CanvasChanged() {}
-
-func (c *BaseComponent) ParentChanged() {
-	c.RectTransform().Recompute(true)
-}
-
-func (c *BaseComponent) RectTransform() *RectTransform {
-	return c.GameObject().Transform().(*RectTransform)
-}
-
-func CreateGenericObject(name string) *forge.GameObject {
-	object := forge.NewGameObject(name)
-
-	object.SetTransform(NewRectTransform())
-
-	return object
 }

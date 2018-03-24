@@ -21,3 +21,92 @@ SOFTWARE.
 */
 
 package ui
+
+import (
+	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/haakenlabs/forge"
+)
+
+type Mesh struct {
+	forge.BaseObject
+
+	size int32
+	vao  uint32
+	vbo  uint32
+}
+
+func (m *Mesh) Alloc() error {
+	gl.GenVertexArrays(1, &m.vao)
+	gl.BindVertexArray(m.vao)
+
+	gl.GenBuffers(1, &m.vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, m.vbo)
+
+	gl.EnableVertexAttribArray(0)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, 32, gl.PtrOffset(0))
+	gl.EnableVertexAttribArray(1)
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, 32, gl.PtrOffset(12))
+	gl.EnableVertexAttribArray(2)
+	gl.VertexAttribPointer(2, 2, gl.FLOAT, false, 32, gl.PtrOffset(24))
+
+	gl.BufferData(gl.ARRAY_BUFFER, 32, nil, gl.DYNAMIC_DRAW)
+
+	m.Unbind()
+
+	return nil
+}
+
+func (m *Mesh) Dealloc() {
+	gl.DeleteBuffers(1, &m.vbo)
+	gl.DeleteVertexArrays(1, &m.vao)
+}
+
+func (m *Mesh) Bind() {
+	gl.BindVertexArray(m.vao)
+}
+
+func (m *Mesh) Unbind() {
+	gl.BindVertexArray(0)
+}
+
+func (m *Mesh) Upload(vertices []forge.Vertex) {
+	m.size = int32(len(vertices))
+
+	m.Bind()
+	gl.BindBuffer(gl.ARRAY_BUFFER, m.vbo)
+
+	if m.size == 0 {
+		gl.BufferData(gl.ARRAY_BUFFER, 0, nil, gl.DYNAMIC_DRAW)
+	} else {
+		gl.BufferData(gl.ARRAY_BUFFER, int(m.size*32), gl.Ptr(vertices), gl.DYNAMIC_DRAW)
+	}
+
+	m.Unbind()
+}
+
+func (m *Mesh) Draw() {
+	if m.size <= 0 {
+		return
+	}
+
+	gl.DrawArrays(gl.TRIANGLES, 0, m.size)
+}
+
+func NewMesh() *Mesh {
+	m := &Mesh{}
+
+	m.SetName("UIMesh")
+	forge.GetInstance().MustAssign(m)
+
+	return m
+}
+
+func MakeQuad(w, h float32) []forge.Vertex {
+	ul := forge.Vertex{V: mgl32.Vec3{}, U: mgl32.Vec2{0, 1}}
+	ur := forge.Vertex{V: mgl32.Vec3{w, 0, 0}, U: mgl32.Vec2{1, 1}}
+	lr := forge.Vertex{V: mgl32.Vec3{w, h, 0}, U: mgl32.Vec2{1, 0}}
+	ll := forge.Vertex{V: mgl32.Vec3{0, h, 0}, U: mgl32.Vec2{0, 0}}
+
+	return []forge.Vertex{ul, lr, ur, ul, ll, lr}
+}

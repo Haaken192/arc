@@ -1,0 +1,29 @@
+{
+    "name": "builtin",
+    "description": "Built-in assets for Forge",
+    "assets": {
+        "shader": [
+            "shaders/basic.shader",
+            "shaders/reflection.shader",
+            "shaders/screen.shader",
+            "shaders/standard.shader",
+            "shaders/test.shader",
+            "shaders/particle/lifecycle.shader",
+            "shaders/particle/simulate.shader",
+            "shaders/particle/render.shader",
+            "shaders/ui/basic.shader",
+            "shaders/ui/text.shader",
+            "shaders/utils/copy.shader",
+            "shaders/utils/cubeconv.shader",
+            "shaders/utils/skybox.shader",
+            "shaders/effects/chromatic_aberration.shader",
+            "shaders/effects/tonemapper.shader"
+        ],
+        "image": [
+            "textures/particle.png"
+        ],
+        "font": [
+            "fonts/SourceCodePro-Regular.ttf"
+        ]
+    }
+}

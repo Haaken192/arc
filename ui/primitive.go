@@ -21,3 +21,72 @@ SOFTWARE.
 */
 
 package ui
+
+import (
+	"github.com/go-gl/mathgl/mgl32"
+	"github.com/haakenlabs/forge"
+)
+
+type Primitive interface {
+	Rect() forge.Rect
+	Draw(mgl32.Mat4)
+	Refresh()
+	Position() mgl32.Vec2
+	Size() mgl32.Vec2
+	SetRect(forge.Rect)
+	SetSize(mgl32.Vec2)
+	SetPosition(mgl32.Vec2)
+}
+
+var _ Primitive = &BasePrimitive{}
+
+type BasePrimitive struct {
+	rect     forge.Rect
+	material *forge.Material
+	mesh     *Mesh
+}
+
+func (p *BasePrimitive) Rect() forge.Rect {
+	return p.rect
+}
+
+func (p *BasePrimitive) SetRect(rect forge.Rect) {
+	p.rect = rect
+	p.Refresh()
+}
+
+func (p *BasePrimitive) SetSize(size mgl32.Vec2) {
+	p.rect.SetSize(size)
+}
+
+func (p *BasePrimitive) SetPosition(position mgl32.Vec2) {
+	p.rect.SetOrigin(position)
+}
+
+func (p *BasePrimitive) Position() mgl32.Vec2 {
+	return p.rect.Origin()
+}
+
+func (p *BasePrimitive) Size() mgl32.Vec2 {
+	return p.rect.Size()
+}
+
+func (p *BasePrimitive) Refresh() {}
+
+func (p *BasePrimitive) Draw(mgl32.Mat4) {}
+
+func (p *BasePrimitive) SetMaterial(material *forge.Material) {
+	p.material = material
+}
+
+func (p *BasePrimitive) SetMesh(mesh *Mesh) {
+	p.mesh = mesh
+}
+
+func (p *BasePrimitive) Mesh() *Mesh {
+	return p.mesh
+}
+
+func (p *BasePrimitive) Shader() *forge.Material {
+	return p.material
+}
