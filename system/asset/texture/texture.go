@@ -37,7 +37,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	_ "github.com/haakenlabs/forge/image/hdr"
+	_ "github.com/haakenlabs/arc/pkg/image/hdr"
 )
 
 const (
@@ -168,7 +168,7 @@ func (h *Handler) Name() string {
 	return AssetNameTexture
 }
 
-func NewImageHandler() *Handler {
+func NewHandler() *Handler {
 	h := &Handler{}
 	h.Items = make(map[string]int32)
 	h.Mu = &sync.RWMutex{}

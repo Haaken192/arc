@@ -28,12 +28,13 @@ import (
 
 	"github.com/go-gl/gl/v4.5-core/gl"
 
+	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/graphics"
-	"github.com/haakenlabs/forge"
+	"github.com/haakenlabs/arc/system/asset/shader"
 )
 
 type ModuleCore struct {
-	StartColor    forge.Color
+	StartColor    core.Color
 	Duration      float32
 	StartDelay    float32
 	StartLifetime float32
@@ -94,7 +95,7 @@ func (m *ModuleCore) ParticleCount() uint32 {
 
 func NewModuleCore(maxParticles uint32) *ModuleCore {
 	m := &ModuleCore{
-		StartColor:    forge.ColorWhite,
+		StartColor:    core.ColorWhite,
 		StartSpeed:    10.0,
 		StartSize:     1.0,
 		PlaybackSpeed: 1.0,
@@ -102,8 +103,8 @@ func NewModuleCore(maxParticles uint32) *ModuleCore {
 		Looping:       true,
 	}
 
-	m.lifecycleShader = forge.GetAsset().MustGet(forge.AssetNameShader, "particle/lifecycle").(*forge.Shader)
-	m.simulateShader = forge.GetAsset().MustGet(forge.AssetNameShader, "particle/simulate").(*forge.Shader)
+	m.lifecycleShader = shader.MustGet("particle/lifecycle")
+	m.simulateShader = shader.MustGet("particle/simulate")
 
 	m.particleBuffer = newBuffer(m.maxParticles)
 	m.particleBuffer.Alloc()

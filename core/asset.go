@@ -35,6 +35,8 @@ import (
 	"github.com/haakenlabs/arc/internal/builtin"
 )
 
+var assetInst *AssetSystem
+
 const SysNameAsset = "asset"
 
 // ErrAssetNotFound reports that the asset was not found in the handler.
@@ -110,6 +112,11 @@ type BaseAssetHandler struct {
 
 // Setup sets up the System.
 func (a *AssetSystem) Setup() error {
+	if assetInst != nil {
+		return ErrSystemInit(SysNameAsset)
+	}
+	assetInst = a
+
 	return nil
 }
 
@@ -202,8 +209,6 @@ func (a *AssetSystem) LoadManifest(files ...string) error {
 		if err := json.Unmarshal(r.Bytes(), m); err != nil {
 			return err
 		}
-
-		logrus.Debug(m.Assets)
 
 		// Load assets.
 		for t := range m.Assets {
@@ -385,7 +390,7 @@ func (h *BaseAssetHandler) GetAsset(name string) (Object, error) {
 	if id, ok := h.Items[name]; !ok {
 		return nil, ErrAssetNotFound(name)
 	} else {
-		obj, err := GetInstance().Get(id)
+		obj, err := GetInstanceSystem().Get(id)
 		if err != nil {
 			return nil, err
 		}
@@ -425,7 +430,7 @@ func NewAssetSystem() *AssetSystem {
 
 // GetAsset gets the asset system from the current app.
 func GetAssetSystem() *AssetSystem {
-	return CurrentApp().MustSystem(SysNameAsset).(*AssetSystem)
+	return assetInst
 }
 
 func NewAssetManifest() *AssetManifest {

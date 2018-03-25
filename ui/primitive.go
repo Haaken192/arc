@@ -52,7 +52,7 @@ func (p *BasePrimitive) Rect() core.Rect {
 	return p.rect
 }
 
-func (p *BasePrimitive) SetRect(rect scene.Rect) {
+func (p *BasePrimitive) SetRect(rect core.Rect) {
 	p.rect = rect
 	p.Refresh()
 }

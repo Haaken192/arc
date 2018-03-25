@@ -33,7 +33,6 @@ import (
 	"github.com/haakenlabs/arc/graphics"
 	"github.com/haakenlabs/arc/pkg/math"
 	"github.com/haakenlabs/arc/system/asset"
-	"github.com/haakenlabs/forge"
 )
 
 const (
@@ -180,7 +179,7 @@ func (h *Handler) Name() string {
 	return AssetNameMesh
 }
 
-func NewMeshHandler() *Handler {
+func NewHandler() *Handler {
 	h := &Handler{}
 	h.Items = make(map[string]int32)
 	h.Mu = &sync.RWMutex{}
@@ -197,7 +196,7 @@ func MustGet(name string) *graphics.Mesh {
 }
 
 func mustHandler() *Handler {
-	h, err := asset.GetHandler(forge.AssetNameMesh)
+	h, err := asset.GetHandler(AssetNameMesh)
 	if err != nil {
 		panic(err)
 	}

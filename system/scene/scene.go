@@ -20,57 +20,60 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package graphics
+package scene
 
 import (
-	"github.com/go-gl/gl/v4.5-core/gl"
-
-	"github.com/haakenlabs/arc/pkg/math"
-	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/core"
 )
 
-type Texture3D struct {
-	BaseTexture
+func Register(scene core.Scene) error {
+	return core.GetSceneSystem().Register(scene)
 }
 
-func NewTexture3D(size math.IVec2, layers int32, format TextureFormat) *Texture3D {
-	t := &Texture3D{}
-
-	t.textureType = gl.TEXTURE_3D
-
-	t.SetName("Texture3D")
-	instance.MustAssign(t)
-
-	t.size = size
-	t.uploadFunc = t.Upload
-
-	t.internalFormat = TextureFormatToInternal(format)
-	t.glFormat = TextureFormatToFormat(format)
-	t.storageFormat = TextureFormatToStorage(format)
-
-	return t
+func Load(name string) error {
+	return core.GetSceneSystem().Load(name)
 }
 
-func NewTexture3DFrom(texture Texture3D) *Texture3D {
-	t := &Texture3D{}
-
-	t.textureType = gl.TEXTURE_3D
-
-	t.SetName("Texture3D")
-	instance.MustAssign(t)
-
-	t.size = texture.Size()
-	t.uploadFunc = t.Upload
-
-	t.internalFormat = texture.GLInternalFormat()
-	t.glFormat = texture.GLFormat()
-	t.storageFormat = texture.GLStorageFormat()
-
-	return t
+func PurgePush(name string) error {
+	return core.GetSceneSystem().PurgePush(name)
 }
 
-func (t *Texture3D) Upload() {
-	t.Bind()
+func Replace(name string) error {
+	return core.GetSceneSystem().Replace(name)
+}
 
-	gl.TexImage3D(t.textureType, 0, t.internalFormat, t.size.X(), t.size.Y(), t.layers, 0, t.glFormat, t.storageFormat, nil)
+func Push(name string) error {
+	return core.GetSceneSystem().Push(name)
+}
+
+func Pop() string {
+	return core.GetSceneSystem().Pop()
+}
+
+func RemoveAll() {
+	core.GetSceneSystem().RemoveAll()
+}
+
+func Unregister(name string) error {
+	return core.GetSceneSystem().Unregister(name)
+}
+
+func Registered(name string) bool {
+	return core.GetSceneSystem().Registered(name)
+}
+
+func Active() core.Scene {
+	return core.GetSceneSystem().Active()
+}
+
+func ActiveName() string {
+	return core.GetSceneSystem().ActiveName()
+}
+
+func Count() int {
+	return core.GetSceneSystem().Count()
+}
+
+func ActiveCount() int {
+	return core.GetSceneSystem().ActiveCount()
 }

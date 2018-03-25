@@ -30,7 +30,6 @@ import (
 	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/scene"
 	"github.com/haakenlabs/arc/system/instance"
-	"github.com/haakenlabs/forge"
 )
 
 type AnchorPreset uint8
@@ -368,7 +367,7 @@ func (t *RectTransform) WorldPosition() mgl32.Vec2 {
 }
 
 func (t *RectTransform) ContainsWorldPosition(position mgl32.Vec2) bool {
-	return forge.NewRect(t.WorldPosition(), t.Size()).Contains(position)
+	return core.NewRect(t.WorldPosition(), t.Size()).Contains(position)
 }
 
 func (t *RectTransform) ParentTransform() *RectTransform {

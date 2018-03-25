@@ -19,7 +19,7 @@
             "shaders/effects/chromatic_aberration.shader",
             "shaders/effects/tonemapper.shader"
         ],
-        "image": [
+        "texture": [
             "textures/particle.png"
         ],
         "font": [

@@ -20,57 +20,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package graphics
+package core
 
 import (
-	"github.com/go-gl/gl/v4.5-core/gl"
+	"github.com/spf13/viper"
 
 	"github.com/haakenlabs/arc/pkg/math"
-	"github.com/haakenlabs/arc/system/instance"
 )
 
-type Texture3D struct {
-	BaseTexture
+const (
+	cfgFilename = "arc.cfg"
+	cfgPrefix   = "arc"
+)
+
+// LoadGlobalConfig sets up viper and reads in the main configuration.
+func LoadGlobalConfig() error {
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix(cfgPrefix)
+	viper.SetConfigFile(cfgFilename)
+	//viper.AddConfigPath(AppDir)
+	viper.SetConfigType("json")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		if _, ok := err.(viper.ConfigParseError); ok {
+			return err
+		}
+	}
+
+	loadDefaultSettings()
+
+	return nil
 }
 
-func NewTexture3D(size math.IVec2, layers int32, format TextureFormat) *Texture3D {
-	t := &Texture3D{}
-
-	t.textureType = gl.TEXTURE_3D
-
-	t.SetName("Texture3D")
-	instance.MustAssign(t)
-
-	t.size = size
-	t.uploadFunc = t.Upload
-
-	t.internalFormat = TextureFormatToInternal(format)
-	t.glFormat = TextureFormatToFormat(format)
-	t.storageFormat = TextureFormatToStorage(format)
-
-	return t
-}
-
-func NewTexture3DFrom(texture Texture3D) *Texture3D {
-	t := &Texture3D{}
-
-	t.textureType = gl.TEXTURE_3D
-
-	t.SetName("Texture3D")
-	instance.MustAssign(t)
-
-	t.size = texture.Size()
-	t.uploadFunc = t.Upload
-
-	t.internalFormat = texture.GLInternalFormat()
-	t.glFormat = texture.GLFormat()
-	t.storageFormat = texture.GLStorageFormat()
-
-	return t
-}
-
-func (t *Texture3D) Upload() {
-	t.Bind()
-
-	gl.TexImage3D(t.textureType, 0, t.internalFormat, t.size.X(), t.size.Y(), t.layers, 0, t.glFormat, t.storageFormat, nil)
+// loadDefaultSettings sets default settings.
+func loadDefaultSettings() {
+	// Graphics Options
+	viper.SetDefault("graphics.resolution", math.IVec2{1280, 720})
+	viper.SetDefault("graphics.mode", 0)
+	viper.SetDefault("graphics.vsync", true)
 }

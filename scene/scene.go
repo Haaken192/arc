@@ -22,6 +22,10 @@ SOFTWARE.
 
 package scene
 
+import "github.com/haakenlabs/arc/core"
+
+var _ core.Scene = &Scene{}
+
 type Scene struct {
 	LoadFunc         func() error
 	OnActivateFunc   func()
@@ -32,6 +36,7 @@ type Scene struct {
 	cameras     []*Camera
 	name        string
 	loaded      bool
+	started     bool
 }
 
 // Name returns the name of this scene.
@@ -98,6 +103,61 @@ func (s *Scene) Objects() []*GameObject {
 
 func (s *Scene) Components() []Component {
 	return s.graph.cCache
+}
+
+func (s *Scene) Display() {
+	if s.graph.Dirty() {
+		s.graph.Update()
+	}
+
+	cameras := s.cameras
+	for i := range cameras {
+		cameras[i].Render()
+	}
+
+	s.graph.SendMessage(MessageGUIRender)
+}
+
+func (s *Scene) FixedUpdate() {
+	if s.graph.Dirty() {
+		s.graph.Update()
+	}
+
+	s.graph.SendMessage(MessageFixedUpdate)
+}
+
+func (s *Scene) Update() {
+	if s.graph.Dirty() {
+		s.graph.Update()
+	}
+
+	if !s.started {
+		s.started = true
+		s.graph.SendMessage(MessageStart)
+	}
+
+	s.graph.SendMessage(MessageUpdate)
+	s.graph.SendMessage(MessageLateUpdate)
+}
+
+func (s *Scene) Environment() *Environment {
+	return s.environment
+}
+
+func (s *Scene) AddObject(object, parent *GameObject) error {
+	return s.graph.AddObject(object, parent)
+}
+
+func (s *Scene) RemoveObject(object *GameObject) error {
+	return s.graph.RemoveObject(object)
+}
+
+func (s *Scene) MoveObject(object, parent *GameObject) error {
+	return s.graph.MoveObject(object, parent)
+}
+
+func (s *Scene) Descendants(object *GameObject, disable bool) []*GameObject {
+	return s.graph.Descendants(object, disable)
 }
 
 func NewScene(name string) *Scene {

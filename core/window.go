@@ -36,6 +36,8 @@ import (
 
 var _ System = &WindowSystem{}
 
+var windowInst *WindowSystem
+
 const SysNameWindow = "window"
 
 const (
@@ -102,6 +104,11 @@ type WindowSystem struct {
 }
 
 func (w *WindowSystem) Setup() (err error) {
+	if windowInst != nil {
+		return ErrSystemInit(SysNameWindow)
+	}
+	windowInst = w
+
 	var monitor *glfw.Monitor
 
 	if err := glfw.Init(); err != nil {
@@ -150,7 +157,7 @@ func (w *WindowSystem) Setup() (err error) {
 
 	w.resolution = math.IVec2{int32(resX), int32(resY)}
 
-	if w.window, err = glfw.CreateWindow(resX, resY, CurrentApp().Name, monitor, nil); err != nil {
+	if w.window, err = glfw.CreateWindow(resX, resY, w.title, monitor, nil); err != nil {
 		return err
 	}
 
@@ -495,8 +502,9 @@ func (w *WindowSystem) onWindowResize(_ *glfw.Window, width int, height int) {
 }
 
 // NewWindow creates a new window system.
-func NewWindowSystem() *WindowSystem {
+func NewWindowSystem(title string) *WindowSystem {
 	return &WindowSystem{
+		title:             title,
 		focus:             true,
 		cursorEnter:       true,
 		mouseButtonEvents: make([]EventMouseButton, 4),
@@ -521,7 +529,7 @@ func DefaultDisplayProperties() *DisplayProperties {
 
 // GetWindow gets the window system from the current app.
 func GetWindowSystem() *WindowSystem {
-	return CurrentApp().MustSystem(SysNameWindow).(*WindowSystem)
+	return windowInst
 }
 
 func getRatio(value math.IVec2) float32 {

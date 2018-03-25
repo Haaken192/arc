@@ -20,7 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package core
+package app
 
 import (
 	"os"
@@ -30,10 +30,17 @@ import (
 
 	"github.com/juju/errors"
 	"github.com/sirupsen/logrus"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/system/asset"
+	"github.com/haakenlabs/arc/system/asset/font"
+	"github.com/haakenlabs/arc/system/asset/mesh"
+	"github.com/haakenlabs/arc/system/asset/shader"
+	"github.com/haakenlabs/arc/system/asset/skybox"
+	"github.com/haakenlabs/arc/system/asset/texture"
 )
 
 const (
-	fixedTime    = float64(0.05)
 	maxFrameSkip = 5
 
 	builtinAssets = "<builtin>:builtin.json"
@@ -67,7 +74,7 @@ type App struct {
 	// PostTeardownFunc is a callback invoked after app teardown.
 	PostTeardownFunc func()
 
-	systems []System
+	systems []core.System
 	running bool
 }
 
@@ -78,11 +85,14 @@ func (a *App) Setup() error {
 	}
 	setApp(a)
 
+	core.LoadGlobalConfig()
+
 	// Register required systems.
-	a.RegisterSystem(NewWindowSystem())
-	a.RegisterSystem(NewInstanceSystem())
-	a.RegisterSystem(NewAssetSystem())
-	a.RegisterSystem(NewTimeSystem())
+	a.RegisterSystem(core.NewWindowSystem(a.Name))
+	a.RegisterSystem(core.NewInstanceSystem())
+	a.RegisterSystem(core.NewAssetSystem())
+	a.RegisterSystem(core.NewTimeSystem())
+	a.RegisterSystem(core.NewSceneSystem())
 
 	if a.PreSetupFunc != nil {
 		if err := a.PreSetupFunc(); err != nil {
@@ -96,6 +106,16 @@ func (a *App) Setup() error {
 		if err := a.systems[i].Setup(); err != nil {
 			return err
 		}
+	}
+
+	asset.RegisterHandler(texture.NewHandler())
+	asset.RegisterHandler(shader.NewHandler())
+	asset.RegisterHandler(mesh.NewHandler())
+	asset.RegisterHandler(font.NewHandler())
+	asset.RegisterHandler(skybox.NewHandler())
+
+	if err := asset.LoadManifest(builtinAssets); err != nil {
+		return err
 	}
 
 	if a.PostSetupFunc != nil {
@@ -132,8 +152,9 @@ func (a *App) Run() error {
 	frame := 0
 	loops := 0
 
-	time := a.MustSystem(SysNameTime).(*TimeSystem)
-	window := a.MustSystem(SysNameWindow).(*WindowSystem)
+	time := a.MustSystem(core.SysNameTime).(*core.TimeSystem)
+	window := a.MustSystem(core.SysNameWindow).(*core.WindowSystem)
+	scene := a.MustSystem(core.SysNameScene).(*core.SceneSystem)
 
 	for a.running {
 		a.running = !window.ShouldClose()
@@ -142,17 +163,17 @@ func (a *App) Run() error {
 
 		frame++
 
-		a.onUpdate()
+		scene.OnUpdate()
 
 		loops = 0
 		for time.LogicUpdate() && loops < maxFrameSkip {
 			time.LogicTick()
-			a.onFixedUpdate()
+			scene.OnFixedUpdate()
 			loops++
 		}
 
 		window.ClearBuffers()
-		a.onDisplay()
+		scene.OnDisplay()
 		window.SwapBuffers()
 
 		window.HandleEvents()
@@ -170,10 +191,10 @@ func (a *App) Quit() {
 // RegisterSystem registers a system with the App. A system can only be added
 // once, it is an error to add a system more than once. Systems are initialized
 // in the order they are added and torn down in the reverse order.
-func (a *App) RegisterSystem(s System) {
+func (a *App) RegisterSystem(s core.System) {
 	// Check for existing system.
 	if a.SystemRegistered(s.Name()) {
-		panic(ErrSystemExists(s.Name()))
+		panic(core.ErrSystemExists(s.Name()))
 	}
 
 	// Add system to the systems slice.
@@ -195,18 +216,18 @@ func (a *App) SystemRegistered(name string) bool {
 }
 
 // System returns a system by the given name.
-func (a *App) System(name string) (System, error) {
+func (a *App) System(name string) (core.System, error) {
 	for i := range a.systems {
 		if a.systems[i].Name() == name {
 			return a.systems[i], nil
 		}
 	}
 
-	return nil, ErrSystemNotFound(name)
+	return nil, core.ErrSystemNotFound(name)
 }
 
 // MustSystem is like System, but panics if the system cannot be found.
-func (a *App) MustSystem(name string) System {
+func (a *App) MustSystem(name string) core.System {
 	s, err := a.System(name)
 	if err != nil {
 		panic(err)
@@ -219,50 +240,6 @@ func (a *App) setupSignalHandler() {
 	s := make(chan os.Signal)
 	signal.Notify(s, os.Interrupt, syscall.SIGTERM)
 	go handleSignal(s, a)
-}
-
-func (a *App) onDisplay() {
-	//if s := a.ActiveScene(); s != nil {
-	//	sg := s.Graph()
-	//	if sg.Dirty() {
-	//		sg.Update()
-	//	}
-	//
-	//	cameras := s.cameras
-	//	for i := range cameras {
-	//		cameras[i].Render()
-	//	}
-	//
-	//	sg.SendMessage(MessageGUIRender)
-	//}
-}
-
-func (a *App) onUpdate() {
-	//if s := a.ActiveScene(); s != nil {
-	//	sg := s.Graph()
-	//	if sg.Dirty() {
-	//		sg.Update()
-	//	}
-	//
-	//	if !s.started {
-	//		s.started = true
-	//		sg.SendMessage(MessageStart)
-	//	}
-	//
-	//	sg.SendMessage(MessageUpdate)
-	//	sg.SendMessage(MessageLateUpdate)
-	//}
-}
-
-func (a *App) onFixedUpdate() {
-	//if s := a.ActiveScene(); s != nil {
-	//	sg := s.Graph()
-	//	if sg.Dirty() {
-	//		sg.Update()
-	//	}
-	//
-	//	sg.SendMessage(MessageFixedUpdate)
-	//}
 }
 
 func handleSignal(s chan os.Signal, a *App) {

@@ -125,7 +125,7 @@ func BlitFramebuffers(in *Framebuffer, out *Framebuffer, location uint32) {
 	dst := uint32(0)
 
 	srcSize := in.Size()
-	dstSize := GetWindow().Resolution()
+	dstSize := core.GetWindowSystem().Resolution()
 
 	if out != nil {
 		dst = out.Reference()
@@ -177,7 +177,10 @@ func (f *Framebuffer) Unbind() {
 		popFramebuffer()
 	} else {
 		f.RawUnbind()
-		gl.Viewport(0, 0, GetWindow().Resolution().X(), GetWindow().Resolution().Y())
+		gl.Viewport(
+			0, 0,
+			core.GetWindowSystem().Resolution().X(),
+			core.GetWindowSystem().Resolution().Y())
 	}
 }
 

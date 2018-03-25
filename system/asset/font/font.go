@@ -104,7 +104,7 @@ func (h *Handler) Name() string {
 	return AssetNameFont
 }
 
-func NewFontHandler() *Handler {
+func NewHandler() *Handler {
 	h := &Handler{}
 	h.Items = make(map[string]int32)
 	h.Mu = &sync.RWMutex{}

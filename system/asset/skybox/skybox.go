@@ -31,7 +31,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/go-gl/gl/v4.3-core/gl"
+	"github.com/go-gl/gl/v4.5-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/sirupsen/logrus"
 
@@ -76,7 +76,7 @@ type Handler struct {
 	core.BaseAssetHandler
 }
 
-func NewSkyboxHandler() *Handler {
+func NewHandler() *Handler {
 	h := &Handler{}
 	h.Items = make(map[string]int32)
 	h.Mu = &sync.RWMutex{}

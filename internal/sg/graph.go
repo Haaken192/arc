@@ -23,6 +23,7 @@ SOFTWARE.
 package sg
 
 import (
+	"fmt"
 	"math"
 	"sync"
 )
@@ -176,6 +177,16 @@ func (g *Graph) HasVertexWithID(d int32) bool {
 	}
 
 	return false
+}
+
+func (g *Graph) DescriptorByNode(n Node) (Descriptor, error) {
+	for k, v := range g.vertices {
+		if v.data.ID() == n.ID() {
+			return k, nil
+		}
+	}
+
+	return -1, fmt.Errorf("descriptor not found for object with ID: %d", n.ID())
 }
 
 // ParentOf returns true if p is a parent of d.

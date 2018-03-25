@@ -28,7 +28,11 @@ import (
 
 var _ System = &TimeSystem{}
 
+var timeInst *TimeSystem
+
 const SysNameTime = "time"
+
+const fixedTime = float64(0.05)
 
 // TimeSystem implements a time system.
 type TimeSystem struct {
@@ -40,6 +44,11 @@ type TimeSystem struct {
 
 // Setup sets up the System.
 func (t *TimeSystem) Setup() error {
+	if timeInst != nil {
+		return ErrSystemInit(SysNameTime)
+	}
+	timeInst = t
+
 	return nil
 }
 
@@ -101,5 +110,5 @@ func NewTimeSystem() *TimeSystem {
 
 // GetTime gets the time system from the current app.
 func GetTimeSystem() *TimeSystem {
-	return CurrentApp().MustSystem(SysNameTime).(*TimeSystem)
+	return timeInst
 }

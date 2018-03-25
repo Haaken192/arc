@@ -24,6 +24,7 @@ package core
 
 type ErrSystemNotFound string
 type ErrSystemExists string
+type ErrSystemInit string
 
 func (e ErrSystemNotFound) Error() string {
 	return "system " + string(e) + " not found"
@@ -31,6 +32,10 @@ func (e ErrSystemNotFound) Error() string {
 
 func (e ErrSystemExists) Error() string {
 	return "system " + string(e) + " already exists"
+}
+
+func (e ErrSystemInit) Error() string {
+	return "system " + string(e) + " already initialized"
 }
 
 // System is an interface representing a major component of the application.

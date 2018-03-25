@@ -33,6 +33,8 @@ import (
 
 var _ System = &InstanceSystem{}
 
+var instanceInst *InstanceSystem
+
 const SysNameInstance = "instance"
 
 var (
@@ -61,6 +63,11 @@ type InstanceSystem struct {
 
 // Setup sets up the System.
 func (s *InstanceSystem) Setup() error {
+	if instanceInst != nil {
+		return ErrSystemInit(SysNameInstance)
+	}
+	instanceInst = s
+
 	return nil
 }
 
@@ -197,5 +204,5 @@ func NewInstanceSystem() *InstanceSystem {
 
 // GetInstance gets the instance system from the current app.
 func GetInstanceSystem() *InstanceSystem {
-	return CurrentApp().MustSystem(SysNameInstance).(*InstanceSystem)
+	return instanceInst
 }

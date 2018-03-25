@@ -25,6 +25,7 @@ package scene
 import (
 	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/internal/sg"
+	"github.com/haakenlabs/arc/system/instance"
 )
 
 type Message uint8
@@ -202,7 +203,7 @@ func (g *GameObject) SendMessage(msg Message) {
 				c.GUIRender()
 			}
 		case MessageSGUpdate:
-			if c, ok := g.components[i].(SceneGraphListener); ok {
+			if c, ok := g.components[i].(GraphListener); ok {
 				c.OnSceneGraphUpdate()
 			}
 		}
@@ -216,7 +217,7 @@ func (g *GameObject) ComponentsInChildren() []Component {
 		return components
 	}
 
-	if g.graph == nil {
+	if g.scene == nil {
 		for _, v := range g.children {
 			components = append(components, v.Components()...)
 			components = append(components, v.ComponentsInChildren()...)
@@ -224,7 +225,7 @@ func (g *GameObject) ComponentsInChildren() []Component {
 		return components
 	}
 
-	for _, v := range g.graph.Descendants(g, false) {
+	for _, v := range g.scene.Descendants(g, false) {
 		components = append(components, v.Components()...)
 	}
 
@@ -246,8 +247,8 @@ func (g *GameObject) ComponentsInParent() []Component {
 }
 
 func (g *GameObject) Environment() *Environment {
-	if g.graph != nil && g.graph.scene != nil {
-		return g.graph.scene.Environment()
+	if g.scene != nil {
+		return g.scene.Environment()
 	}
 
 	return nil
@@ -271,7 +272,7 @@ func NewGameObject(name string) *GameObject {
 	}
 
 	g.SetName(name)
-	GetInstance().MustAssign(g)
+	instance.MustAssign(g)
 
 	g.components = []Component{NewTransform()}
 	g.components[0].SetGameObject(g)
