@@ -31,6 +31,7 @@ import (
 	"github.com/haakenlabs/arc/scene"
 	"github.com/haakenlabs/arc/system/input"
 	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/system/window"
 	"github.com/haakenlabs/arc/ui"
 	"github.com/haakenlabs/arc/ui/widget"
 )
@@ -52,21 +53,39 @@ func (d *Debug) LateUpdate() {
 func NewDebug(name string) *scene.GameObject {
 	o := ui.CreateController(name + "object")
 
+	p0 := widget.CreatePanel("hmm")
+	ui.RectTransformComponent(p0).SetSize(window.Resolution().Vec2())
+	ui.RectTransformComponent(p0).SetAnchorPreset(ui.StretchAnchorAll)
+	widget.ImageComponent(p0).SetColor(ui.Styles.BackgroundColor)
+
 	p := widget.CreatePanel(name + "-panel")
 	widget.ImageComponent(p).RectTransform().SetSize(mgl32.Vec2{320, 512})
 	widget.ImageComponent(p).SetColor(ui.Styles.BackgroundColor)
 
 	s0 := widget.CreatePanel(name + "-s0")
-	widget.ImageComponent(s0).RectTransform().SetSize(mgl32.Vec2{320, 18})
+	widget.ImageComponent(s0).RectTransform().SetSize(mgl32.Vec2{320, 24})
 	widget.ImageComponent(s0).SetColor(ui.Styles.WidgetColor)
 
 	s0Title := widget.CreateLabel(name + "-s0-title")
-	widget.LabelComponent(s0Title).SetValue("Forge Debugger")
-	ui.RectTransformComponent(s0Title).SetPosition2D(mgl32.Vec2{4, 0})
+	widget.LabelComponent(s0Title).SetValue("Debugger")
+	ui.RectTransformComponent(s0Title).SetPosition2D(mgl32.Vec2{8, 2})
 	ui.RectTransformComponent(s0Title).SetPresets(ui.AnchorMiddleLeft, ui.PivotMiddleLeft)
+
+	s1 := widget.CreatePanel(name + "-s1")
+	widget.ImageComponent(s1).RectTransform().SetSize(mgl32.Vec2{320, 24})
+	widget.ImageComponent(s1).RectTransform().SetPosition2D(mgl32.Vec2{0, 192})
+	widget.ImageComponent(s1).SetColor(ui.Styles.WidgetColor)
+
+	s1Title := widget.CreateLabel(name + "-s1-title")
+	widget.LabelComponent(s1Title).SetValue("Performance")
+	ui.RectTransformComponent(s1Title).SetPosition2D(mgl32.Vec2{8, 2})
+	ui.RectTransformComponent(s1Title).SetPresets(ui.AnchorMiddleLeft, ui.PivotMiddleLeft)
 
 	s0.AddChild(s0Title)
 	p.AddChild(s0)
+
+	s1.AddChild(s1Title)
+	p.AddChild(s1)
 
 	d := &Debug{
 		labelTitle: widget.LabelComponent(s0Title),
@@ -75,6 +94,7 @@ func NewDebug(name string) *scene.GameObject {
 	d.SetName(name + "-debug")
 	instance.MustAssign(d)
 
+	o.AddChild(p0)
 	o.AddChild(p)
 	o.AddComponent(d)
 

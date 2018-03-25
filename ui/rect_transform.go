@@ -314,11 +314,19 @@ func (t *RectTransform) ComputeOffsets() {
 	t.offsetMax[0] = (parentSize.X()*t.anchorMin.X() + t.offsetMin.X()) + t.Size().X() - parentSize.X()*t.anchorMax.X()
 	t.offsetMax[1] = (parentSize.Y()*t.anchorMin.Y() + t.offsetMin.Y()) + t.Size().Y() - parentSize.Y()*t.anchorMax.Y()
 
-	if t.pivot[0] != 0.0 || t.pivot[1] != 0.0 {
-		fmt.Printf(">>> ComputeOffsets\n")
-		fmt.Printf("  pivotSkew: %v\n", pivotSkew)
-		fmt.Printf("  offsetMin: %v\n", t.offsetMin)
-		fmt.Printf("  offsetMax: %v\n", t.offsetMax)
+	if t.pivot[1] == 0.5 {
+		fmt.Printf("--------------\n")
+		fmt.Printf("parentSize: %v\n", parentSize)
+		fmt.Printf("      size: %v\n", t.Size())
+		fmt.Printf("  position: %v\n", t.Position())
+		fmt.Printf("      left: %v top: %v\n", t.rect.Left(), t.rect.Top())
+		fmt.Printf("      rect: %v\n", t.rect)
+		fmt.Printf("     pivot: %v\n", t.pivot)
+		fmt.Printf(" pivotSkew: %v\n", pivotSkew)
+		fmt.Printf(" anchorMin: %v\n", t.anchorMin)
+		fmt.Printf(" anchorMax: %v\n", t.anchorMax)
+		fmt.Printf(" offsetMin: %v\n", t.offsetMin)
+		fmt.Printf(" offsetMax: %v\n", t.offsetMax)
 	}
 }
 
@@ -342,23 +350,29 @@ func (t *RectTransform) Recompute(updateChildren bool) {
 	}
 	aSize = aMax.Add(t.offsetMax).Sub(aMin.Add(t.offsetMin))
 
+	pos := aMin.Add(t.offsetMin)
+
 	if t.autoSize {
 		t.rect.SetSize(aSize)
 	}
-	t.rect.SetOrigin(aMin.Add(t.offsetMin)) //.Add(t.rect.Origin()))
 
-	if t.pivot[0] != 0.0 || t.pivot[1] != 0.0 {
-		fmt.Printf(">>> Recompute\n")
-		fmt.Printf("  offsetMin: %v\n", t.offsetMin)
-		fmt.Printf("  offsetMax: %v\n", t.offsetMax)
-		fmt.Printf("       aMin: %v\n", aMin)
-		fmt.Printf("       aMax: %v\n", aMax)
-		fmt.Printf("      aSize: %v\n", aSize)
-		fmt.Printf("      pSize: %v\n", pSize)
-		fmt.Printf("   position: %v\n", t.rect.Origin())
-		fmt.Printf("       size: %v\n", t.rect.Size())
+	if t.pivot[1] == 0.5 {
+		fmt.Printf("--------------\n")
+		fmt.Printf("parentSize: %v\n", pSize)
+		fmt.Printf("      size: %v\n", t.Size())
+		fmt.Printf("  position: %v\n", t.Position())
+		fmt.Printf("      left: %v top: %v\n", t.rect.Left(), t.rect.Top())
+		fmt.Printf("      rect: %v\n", t.rect)
+		fmt.Printf("     pivot: %v\n", t.pivot)
+		fmt.Printf(" anchorMin: %v\n", t.anchorMin)
+		fmt.Printf(" anchorMax: %v\n", t.anchorMax)
+		fmt.Printf(" offsetMin: %v\n", t.offsetMin)
+		fmt.Printf(" offsetMax: %v\n", t.offsetMax)
+
+		fmt.Printf(" recompute position: %v\n", t.Position())
 	}
 
+	t.BaseTransform.SetPositionN(pos.Vec3(0.0))
 	t.BaseTransform.Recompute(updateChildren)
 }
 
