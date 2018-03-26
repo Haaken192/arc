@@ -21,3 +21,125 @@ SOFTWARE.
 */
 
 package audio
+
+import (
+	"path/filepath"
+	"sync"
+
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/flac"
+	"github.com/faiface/beep/mp3"
+	"github.com/faiface/beep/wav"
+
+	"fmt"
+
+	"github.com/haakenlabs/arc/core"
+	"github.com/haakenlabs/arc/system/asset"
+)
+
+const AssetNameAudio = "audio"
+
+var _ core.AssetHandler = &Handler{}
+
+type Handler struct {
+	core.BaseAssetHandler
+}
+
+func (h *Handler) Load(r *core.Resource) error {
+	var streamer beep.Streamer
+	var format beep.Format
+	var err error
+
+	name := r.Base()
+	ext := filepath.Ext(name)
+
+	if _, dup := h.Items[name]; dup {
+		return core.ErrAssetExists(name)
+	}
+
+	switch ext {
+	case "mp3":
+		streamer, format, err = mp3.Decode(r.ReadCloser())
+	case "wav":
+		streamer, format, err = wav.Decode(r.ReadCloser())
+	case "flac":
+		streamer, format, err = flac.Decode(r.ReadCloser())
+	default:
+		return fmt.Errorf("unknown audio type: %s", ext)
+	}
+
+	if err != nil {
+		return err
+	}
+
+	s := core.NewSound(streamer, format)
+	s.SetName(name)
+
+	return h.Add(name, s)
+}
+
+func (h *Handler) Add(name string, sound *core.Sound) error {
+	if _, dup := h.Items[name]; dup {
+		return core.ErrAssetExists(name)
+	}
+
+	if err := sound.Alloc(); err != nil {
+		return err
+	}
+
+	h.Items[name] = sound.ID()
+
+	return nil
+}
+
+func (h *Handler) Get(name string) (*core.Sound, error) {
+	a, err := h.GetAsset(name)
+	if err != nil {
+		return nil, err
+	}
+
+	a2, ok := a.(*core.Sound)
+	if !ok {
+		return nil, core.ErrAssetType(name)
+	}
+
+	return a2, nil
+}
+
+func (h *Handler) MustGet(name string) *core.Sound {
+	a, err := h.Get(name)
+	if err != nil {
+		panic(err)
+	}
+
+	return a
+}
+
+func (h *Handler) Name() string {
+	return AssetNameAudio
+}
+
+func NewHandler() *Handler {
+	h := &Handler{}
+	h.Items = make(map[string]int32)
+	h.Mu = &sync.RWMutex{}
+
+	return h
+}
+
+func Get(name string) (*core.Sound, error) {
+	return mustHandler().Get(name)
+}
+
+func MustGet(name string) *core.Sound {
+	return mustHandler().MustGet(name)
+}
+
+func mustHandler() *Handler {
+	h, err := asset.GetHandler(AssetNameAudio)
+	if err != nil {
+		panic(err)
+	}
+
+	return h.(*Handler)
+}

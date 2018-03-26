@@ -26,6 +26,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"io/ioutil"
 	"path/filepath"
 	"strings"
 )
@@ -79,6 +80,10 @@ func NewResource(filename string) (*Resource, error) {
 // Reader returns a new io.Reader for this Resource.
 func (r *Resource) Reader() io.Reader {
 	return bufio.NewReader(r.buffer)
+}
+
+func (r *Resource) ReadCloser() io.ReadCloser {
+	return ioutil.NopCloser(bufio.NewReader(r.buffer))
 }
 
 // Bytes returns a byte slice representation of the Resource.

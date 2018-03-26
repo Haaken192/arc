@@ -22,15 +22,79 @@ SOFTWARE.
 
 package core
 
+import (
+	"time"
+
+	"github.com/faiface/beep"
+	"github.com/faiface/beep/speaker"
+	"github.com/haakenlabs/arc/pkg/math"
+)
+
 var _ System = &AudioSystem{}
 
 var audioInst *AudioSystem
 
 const SysNameAudio = "audio"
 
-type AudioChannels uint8
+type AudioChannel uint8
 
 type AudioSystem struct {
-	volume float64
-	mute   bool
+	volume   float64
+	channels AudioChannel
+	mute     bool
+}
+
+// Setup sets up the System.
+func (s *AudioSystem) Setup(rate beep.SampleRate) error {
+	if timeInst != nil {
+		return ErrSystemInit(SysNameAudio)
+	}
+	audioInst = s
+
+	speaker.Init(rate, rate.N(time.Second/10))
+
+	return nil
+}
+
+// Teardown tears down the System.
+func (s *AudioSystem) Teardown() {
+	audioInst = nil
+}
+
+// Name returns the name of the System.
+func (s *AudioSystem) Name() string {
+	return SysNameAudio
+}
+
+func (s *AudioSystem) Volume() float64 {
+	return s.volume
+}
+
+func (s *AudioSystem) SetVolume(volume float64) {
+	s.volume = math.Clamp(volume, 0.0, 1.0)
+}
+
+func (s *AudioSystem) Mute() {
+	s.SetMute(true)
+}
+
+func (s *AudioSystem) Unmute() {
+	s.SetMute(false)
+}
+
+func (s *AudioSystem) SetMute(mute bool) {
+	s.mute = mute
+}
+
+func (s *AudioSystem) PlaySound(sound *Sound) {
+
+}
+
+func NewAudioSystem() *AudioSystem {
+	return &AudioSystem{}
+}
+
+// GetTime gets the time system from the current app.
+func GetAudioSystem() *AudioSystem {
+	return audioInst
 }

@@ -20,26 +20,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package audio
+package core
 
-import "github.com/haakenlabs/arc/core"
+import "github.com/faiface/beep"
 
-func Volume() float64 {
-	return core.GetAudioSystem().Volume()
+type Sound struct {
+	BaseObject
+
+	streamer beep.Streamer
+	format   beep.Format
+
+	loop bool
 }
 
-func SetVolume(volume float64) {
-	core.GetAudioSystem().SetVolume(volume)
+func NewSound(streamer beep.Streamer, format beep.Format) *Sound {
+	s := &Sound{
+		streamer: streamer,
+		format:   format,
+	}
+
+	s.SetName("Sound")
+	GetInstanceSystem().MustAssign(s)
+
+	return s
 }
 
-func Mute() {
-	core.GetAudioSystem().Mute()
+func (s *Sound) Play() {
+	GetAudioSystem().PlaySound(s)
 }
 
-func Unmute() {
-	core.GetAudioSystem().Unmute()
+func (s *Sound) Stop() {
+
 }
 
-func SetMute(mute bool) {
-	core.GetAudioSystem().SetMute(mute)
+func (s *Sound) Loop() bool {
+	return s.loop
+}
+
+func (s *Sound) SetLoop(loop bool) {
+	s.loop = loop
 }

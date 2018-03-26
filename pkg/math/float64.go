@@ -20,26 +20,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-package audio
+package math
 
-import "github.com/haakenlabs/arc/core"
+func Clamp(x, min, max float64) float64 {
+	if x < min {
+		return min
+	} else if x > max {
+		return max
+	}
 
-func Volume() float64 {
-	return core.GetAudioSystem().Volume()
-}
-
-func SetVolume(volume float64) {
-	core.GetAudioSystem().SetVolume(volume)
-}
-
-func Mute() {
-	core.GetAudioSystem().Mute()
-}
-
-func Unmute() {
-	core.GetAudioSystem().Unmute()
-}
-
-func SetMute(mute bool) {
-	core.GetAudioSystem().SetMute(mute)
+	return x
 }
