@@ -39,19 +39,20 @@ const SysNameAudio = "audio"
 type AudioChannel uint8
 
 type AudioSystem struct {
-	volume   float64
-	channels AudioChannel
-	mute     bool
+	volume     float64
+	channels   AudioChannel
+	sampleRate beep.SampleRate
+	mute       bool
 }
 
 // Setup sets up the System.
-func (s *AudioSystem) Setup(rate beep.SampleRate) error {
+func (s *AudioSystem) Setup() error {
 	if timeInst != nil {
 		return ErrSystemInit(SysNameAudio)
 	}
 	audioInst = s
 
-	speaker.Init(rate, rate.N(time.Second/10))
+	speaker.Init(s.sampleRate, s.sampleRate.N(time.Second/10))
 
 	return nil
 }
@@ -87,11 +88,13 @@ func (s *AudioSystem) SetMute(mute bool) {
 }
 
 func (s *AudioSystem) PlaySound(sound *Sound) {
-
+	speaker.Play(sound.streamer)
 }
 
-func NewAudioSystem() *AudioSystem {
-	return &AudioSystem{}
+func NewAudioSystem(rate beep.SampleRate) *AudioSystem {
+	return &AudioSystem{
+		sampleRate: rate,
+	}
 }
 
 // GetTime gets the time system from the current app.

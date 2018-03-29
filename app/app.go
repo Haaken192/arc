@@ -87,7 +87,6 @@ func (a *App) Setup() error {
 
 	core.LoadGlobalConfig()
 
-	// Register required systems.
 	a.RegisterSystem(core.NewWindowSystem(a.Name))
 	a.RegisterSystem(core.NewInstanceSystem())
 	a.RegisterSystem(core.NewAssetSystem())
