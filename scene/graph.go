@@ -116,6 +116,8 @@ func (s *Graph) AddObject(object, parent *GameObject) error {
 	object.parent = parent
 	object.parent.AddChild(object)
 
+	object.scene = s.scene
+
 	s.Update()
 
 	return nil

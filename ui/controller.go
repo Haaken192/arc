@@ -26,6 +26,7 @@ import (
 	"github.com/go-gl/gl/v4.5-core/gl"
 	"github.com/go-gl/glfw/v3.2/glfw"
 
+	"github.com/haakenlabs/arc/graphics"
 	"github.com/haakenlabs/arc/scene"
 	"github.com/haakenlabs/arc/system/input"
 	"github.com/haakenlabs/arc/system/instance"
@@ -36,17 +37,28 @@ type Controller struct {
 	scene.BaseScriptComponent
 
 	wCache      []Widget
+	mCache      []*Mask
 	selected    Widget
 	highlighted Widget
+
+	fbo        *graphics.Framebuffer
+	fboTexture *graphics.Texture2D
+
+	pixelPerfect bool
+	maskIndex    uint8
 }
 
 func (c *Controller) UpdateCache() {
 	c.wCache = c.wCache[:0]
+	c.mCache = c.mCache[:0]
 
 	components := c.GameObject().ComponentsInChildren()
 	for i := range components {
 		if w, ok := components[i].(Widget); ok {
 			c.wCache = append(c.wCache, w)
+		}
+		if m, ok := components[i].(*Mask); ok {
+			c.mCache = append(c.mCache, m)
 		}
 	}
 }
@@ -60,19 +72,46 @@ func (c *Controller) GUIRender() {
 		return
 	}
 
+	c.fbo.Bind()
+	c.fbo.ClearBufferFlags(gl.COLOR_BUFFER_BIT | gl.STENCIL_BUFFER_BIT)
+
 	gl.Disable(gl.DEPTH_TEST)
+	gl.Enable(gl.STENCIL_TEST)
 	gl.Enable(gl.BLEND)
 	gl.BlendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
 
+	c.maskIndex = 0
+	for _, v := range c.mCache {
+		v.SetMaskID(c.nextMaskIndex())
+		v.WriteMask()
+	}
 	for _, v := range c.wCache {
 		v.Redraw()
 	}
+
+	c.fbo.Unbind()
+
+	gl.Disable(gl.STENCIL_TEST)
+	gl.BlendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA)
+	graphics.BlitFramebuffers(c.fbo, graphics.CurrentFramebuffer(), gl.COLOR_ATTACHMENT0)
 
 	gl.Disable(gl.BLEND)
 	gl.Enable(gl.DEPTH_TEST)
 }
 
+func (c *Controller) nextMaskIndex() uint8 {
+	m := c.maskIndex
+
+	if c.maskIndex != 255 {
+		c.maskIndex++
+	}
+
+	return m
+}
+
 func (c *Controller) Resize() {
+	c.fbo.SetSize(window.Resolution())
+
 	if c.GameObject() != nil {
 		RectTransformComponent(c.GameObject()).SetSize(window.Resolution().Vec2())
 	}
@@ -180,7 +219,19 @@ func (c *Controller) processInteractions(w Widget) {
 }
 
 func NewController() *Controller {
-	c := &Controller{}
+	c := &Controller{
+		fbo:        graphics.NewFramebuffer(window.Resolution()),
+		fboTexture: graphics.NewTexture2D(window.Resolution(), graphics.TextureFormatDefaultColor),
+	}
+
+	c.fboTexture.Alloc()
+
+	c.fbo.SetAttachment(gl.COLOR_ATTACHMENT0, graphics.NewAttachmentTexture2DFrom(c.fboTexture, false))
+	c.fbo.SetAttachment(gl.DEPTH_STENCIL_ATTACHMENT, graphics.NewAttachmentRenderBuffer(c.fbo.Size(), graphics.TextureFormatDepth24Stencil8))
+
+	if err := c.fbo.Alloc(); err != nil {
+		panic(err)
+	}
 
 	c.SetName("UIController")
 	instance.MustAssign(c)

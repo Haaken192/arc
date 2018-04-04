@@ -43,9 +43,10 @@ type Primitive interface {
 var _ Primitive = &BasePrimitive{}
 
 type BasePrimitive struct {
-	rect     core.Rect
-	material *scene.Material
-	mesh     *Mesh
+	rect      core.Rect
+	material  *scene.Material
+	mesh      *Mesh
+	maskLayer uint8
 }
 
 func (p *BasePrimitive) Rect() core.Rect {
@@ -91,4 +92,12 @@ func (p *BasePrimitive) Mesh() *Mesh {
 
 func (p *BasePrimitive) Shader() *scene.Material {
 	return p.material
+}
+
+func (p *BasePrimitive) SetMaskLayer(maskLayer uint8) {
+	p.maskLayer = maskLayer
+}
+
+func (p *BasePrimitive) MaskLayer() uint8 {
+	return p.maskLayer
 }

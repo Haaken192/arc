@@ -39,7 +39,6 @@ type Graphic struct {
 	BasePrimitive
 
 	color       core.Color
-	maskLayer   uint8
 	textureMode bool
 }
 
@@ -62,7 +61,7 @@ func (g *Graphic) Color() core.Color {
 func (g *Graphic) Refresh() {
 	r := g.Rect()
 
-	verts := MakeQuad(r.Size().Elem())
+	verts := MakeQuad(r.SizeElem())
 
 	g.mesh.Upload(verts)
 }

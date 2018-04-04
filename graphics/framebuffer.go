@@ -137,6 +137,10 @@ func BlitFramebuffers(in *Framebuffer, out *Framebuffer, location uint32) {
 	gl.ReadBuffer(location)
 	gl.BlitFramebuffer(0, 0, srcSize.X(), srcSize.Y(), 0, 0, dstSize.X(), dstSize.Y(), gl.COLOR_BUFFER_BIT, gl.LINEAR)
 
+	if err := gl.GetError(); err != gl.NO_ERROR {
+		panic(err)
+	}
+
 	BindCurrentFramebuffer()
 }
 

@@ -258,6 +258,7 @@ func (c *Camera) OnSceneGraphUpdate() {
 	c.forwardCache = c.forwardCache[:0]
 
 	var drawables []Drawable
+
 	components := c.GameObject().Scene().Components()
 	for i := range components {
 		if r, ok := components[i].(Drawable); ok {
@@ -374,8 +375,10 @@ func (c *Camera) renderDeferred() {
 	c.gbuffer.Attachment1().ActivateTexture(gl.TEXTURE1)
 	c.gbuffer.AttachmentDepth().ActivateTexture(gl.TEXTURE2)
 
-	skybox.Specular().ActivateTexture(gl.TEXTURE3)
-	skybox.Irradiance().ActivateTexture(gl.TEXTURE4)
+	if skybox != nil {
+		skybox.Specular().ActivateTexture(gl.TEXTURE3)
+		skybox.Irradiance().ActivateTexture(gl.TEXTURE4)
+	}
 
 	c.meshes[CameraMeshGBuffer].Draw()
 
