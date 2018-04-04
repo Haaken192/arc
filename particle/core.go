@@ -26,7 +26,7 @@ import (
 	"encoding/binary"
 	"unsafe"
 
-	"github.com/go-gl/gl/v4.5-core/gl"
+	"github.com/go-gl/gl/v4.3-core/gl"
 
 	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/graphics"

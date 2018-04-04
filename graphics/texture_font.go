@@ -23,7 +23,7 @@ SOFTWARE.
 package graphics
 
 import (
-	"github.com/go-gl/gl/v4.5-core/gl"
+	"github.com/go-gl/gl/v4.3-core/gl"
 
 	"github.com/haakenlabs/arc/pkg/math"
 	"github.com/haakenlabs/arc/system/instance"

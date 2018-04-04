@@ -27,7 +27,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/go-gl/gl/v4.5-core/gl"
+	"github.com/go-gl/gl/v4.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 	"github.com/sirupsen/logrus"
 
@@ -261,7 +261,7 @@ func containsShaderType(shaderType ShaderComponent, data []byte) bool {
 }
 
 func loadComponent(programId uint32, componentType ShaderComponent, data []byte) (uint32, error) {
-	header := []byte("#version 450\n")
+	header := []byte("#version 430\n")
 
 	switch componentType {
 	case ShaderComponentVertex:

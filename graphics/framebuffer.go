@@ -25,7 +25,7 @@ package graphics
 import (
 	"fmt"
 
-	"github.com/go-gl/gl/v4.5-core/gl"
+	"github.com/go-gl/gl/v4.3-core/gl"
 	"github.com/sirupsen/logrus"
 
 	"github.com/haakenlabs/arc/core"

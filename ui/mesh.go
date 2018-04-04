@@ -23,7 +23,7 @@ SOFTWARE.
 package ui
 
 import (
-	"github.com/go-gl/gl/v4.5-core/gl"
+	"github.com/go-gl/gl/v4.3-core/gl"
 	"github.com/go-gl/mathgl/mgl32"
 
 	"github.com/haakenlabs/arc/core"
