@@ -40,6 +40,8 @@ type Graphic struct {
 
 	color       core.Color
 	textureMode bool
+	invertX     bool
+	invertY     bool
 }
 
 func (g *Graphic) SetTexture(texture *graphics.Texture2D) {
@@ -81,6 +83,8 @@ func (g *Graphic) Draw(matrix mgl32.Mat4) {
 	g.material.SetProperty("f_texture_mode", g.textureMode)
 	g.material.SetProperty("f_alpha", float32(1.0))
 	g.material.SetProperty("f_color", g.color.Vec4())
+	g.material.SetProperty("f_invert_x", g.invertX)
+	g.material.SetProperty("f_invert_y", g.invertY)
 
 	gl.StencilFunc(gl.ALWAYS, int32(g.maskLayer), 0xFF)
 	gl.StencilMask(0)
@@ -93,7 +97,8 @@ func (g *Graphic) Draw(matrix mgl32.Mat4) {
 
 func NewGraphic() *Graphic {
 	g := &Graphic{
-		color: core.ColorWhite,
+		color:   core.ColorWhite,
+		invertY: true,
 	}
 
 	g.material = scene.NewMaterial()

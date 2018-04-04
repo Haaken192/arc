@@ -54,6 +54,9 @@ func (w *Image) SetColor(color core.Color) {
 
 func (w *Image) SetTexture(texture *graphics.Texture2D) {
 	w.graphic.SetTexture(texture)
+	if w.graphic.Texture() != nil {
+		w.RectTransform().SetSize(w.graphic.Texture().Size().Vec2())
+	}
 }
 
 func (w *Image) OnActivate() {

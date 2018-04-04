@@ -29,6 +29,7 @@ import (
 	"github.com/go-gl/mathgl/mgl32"
 
 	"github.com/haakenlabs/arc/scene"
+	"github.com/haakenlabs/arc/system/asset/texture"
 	"github.com/haakenlabs/arc/system/input"
 	"github.com/haakenlabs/arc/system/instance"
 	"github.com/haakenlabs/arc/system/window"
@@ -40,6 +41,7 @@ type Debug struct {
 	scene.BaseScriptComponent
 
 	labelTitle *widget.Label
+	targets    []*ui.RectTransform
 }
 
 func (d *Debug) LateUpdate() {
@@ -47,6 +49,10 @@ func (d *Debug) LateUpdate() {
 		fmt.Printf("this: %v parent: %v\n",
 			d.labelTitle.RectTransform().Rect(),
 			ui.RectTransformComponent(d.labelTitle.GameObject().Parent()).Rect())
+
+		for _, v := range d.targets {
+			v.Metrics()
+		}
 	}
 }
 
@@ -57,6 +63,10 @@ func NewDebug(name string) *scene.GameObject {
 	ui.RectTransformComponent(p0).SetSize(window.Resolution().Vec2())
 	ui.RectTransformComponent(p0).SetAnchorPreset(ui.StretchAnchorAll)
 	widget.ImageComponent(p0).SetColor(ui.Styles.BackgroundColor)
+
+	logo := widget.CreateImage("logo")
+	ui.RectTransformComponent(logo).SetPresets(ui.AnchorMiddleCenter, ui.PivotMiddleCenter)
+	widget.ImageComponent(logo).SetTexture(texture.MustGet("arc-logo.png"))
 
 	p := widget.CreatePanel(name + "-panel")
 	widget.ImageComponent(p).RectTransform().SetSize(mgl32.Vec2{320, 512})
@@ -91,9 +101,12 @@ func NewDebug(name string) *scene.GameObject {
 		labelTitle: widget.LabelComponent(s0Title),
 	}
 
+	d.targets = append(d.targets, ui.RectTransformComponent(p0), ui.RectTransformComponent(logo))
+
 	d.SetName(name + "-debug")
 	instance.MustAssign(d)
 
+	p0.AddChild(logo)
 	o.AddChild(p0)
 	o.AddChild(p)
 	o.AddComponent(d)

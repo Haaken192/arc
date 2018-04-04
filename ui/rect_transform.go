@@ -30,6 +30,7 @@ import (
 	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/scene"
 	"github.com/haakenlabs/arc/system/instance"
+	"github.com/haakenlabs/arc/system/window"
 )
 
 type AnchorPreset uint8
@@ -297,13 +298,11 @@ func (t *RectTransform) ComputeOffsets() {
 	var pivotSkew mgl32.Vec2
 
 	parent := t.ParentTransform()
-	if parent == nil {
-		t.offsetMin = t.rect.Min()
-		t.offsetMax = t.rect.Max()
-		return
+	if parent != nil {
+		parentSize = parent.Size()
+	} else {
+		parentSize = window.Resolution().Vec2()
 	}
-
-	parentSize = parent.Size()
 
 	pivotSkew[0] = t.rect.Width() * t.pivot.X()
 	pivotSkew[1] = t.rect.Height() * t.pivot.Y()
@@ -313,21 +312,6 @@ func (t *RectTransform) ComputeOffsets() {
 
 	t.offsetMax[0] = (parentSize.X()*t.anchorMin.X() + t.offsetMin.X()) + t.Size().X() - parentSize.X()*t.anchorMax.X()
 	t.offsetMax[1] = (parentSize.Y()*t.anchorMin.Y() + t.offsetMin.Y()) + t.Size().Y() - parentSize.Y()*t.anchorMax.Y()
-
-	if t.pivot[1] == 0.5 {
-		fmt.Printf("--------------\n")
-		fmt.Printf("parentSize: %v\n", parentSize)
-		fmt.Printf("      size: %v\n", t.Size())
-		fmt.Printf("  position: %v\n", t.Position())
-		fmt.Printf("      left: %v top: %v\n", t.rect.Left(), t.rect.Top())
-		fmt.Printf("      rect: %v\n", t.rect)
-		fmt.Printf("     pivot: %v\n", t.pivot)
-		fmt.Printf(" pivotSkew: %v\n", pivotSkew)
-		fmt.Printf(" anchorMin: %v\n", t.anchorMin)
-		fmt.Printf(" anchorMax: %v\n", t.anchorMax)
-		fmt.Printf(" offsetMin: %v\n", t.offsetMin)
-		fmt.Printf(" offsetMax: %v\n", t.offsetMax)
-	}
 }
 
 func (t *RectTransform) Recompute(updateChildren bool) {
@@ -338,6 +322,8 @@ func (t *RectTransform) Recompute(updateChildren bool) {
 
 	if t.ParentTransform() != nil {
 		pSize = t.ParentTransform().Size()
+	} else {
+		pSize = window.Resolution().Vec2()
 	}
 
 	aMin = mgl32.Vec2{
@@ -356,24 +342,31 @@ func (t *RectTransform) Recompute(updateChildren bool) {
 		t.rect.SetSize(aSize)
 	}
 
-	if t.pivot[1] == 0.5 {
-		fmt.Printf("--------------\n")
-		fmt.Printf("parentSize: %v\n", pSize)
-		fmt.Printf("      size: %v\n", t.Size())
-		fmt.Printf("  position: %v\n", t.Position())
-		fmt.Printf("      left: %v top: %v\n", t.rect.Left(), t.rect.Top())
-		fmt.Printf("      rect: %v\n", t.rect)
-		fmt.Printf("     pivot: %v\n", t.pivot)
-		fmt.Printf(" anchorMin: %v\n", t.anchorMin)
-		fmt.Printf(" anchorMax: %v\n", t.anchorMax)
-		fmt.Printf(" offsetMin: %v\n", t.offsetMin)
-		fmt.Printf(" offsetMax: %v\n", t.offsetMax)
-
-		fmt.Printf(" recompute position: %v\n", t.Position())
-	}
-
 	t.BaseTransform.SetPositionN(pos.Vec3(0.0))
 	t.BaseTransform.Recompute(updateChildren)
+}
+
+func (t *RectTransform) Metrics() {
+	var pSize mgl32.Vec2
+
+	parent := t.ParentTransform()
+	if parent != nil {
+		pSize = parent.Size()
+	} else {
+		pSize = window.Resolution().Vec2()
+	}
+
+	fmt.Printf("%s Metrics --------------\n", t)
+	fmt.Printf("parentSize: %v\n", pSize)
+	fmt.Printf("      size: %v\n", t.Size())
+	fmt.Printf("  position: %v\n", t.Position())
+	fmt.Printf("      left: %v top: %v\n", t.rect.Left(), t.rect.Top())
+	fmt.Printf("      rect: %v\n", t.rect)
+	fmt.Printf("     pivot: %v\n", t.pivot)
+	fmt.Printf(" anchorMin: %v\n", t.anchorMin)
+	fmt.Printf(" anchorMax: %v\n", t.anchorMax)
+	fmt.Printf(" offsetMin: %v\n", t.offsetMin)
+	fmt.Printf(" offsetMax: %v\n", t.offsetMax)
 }
 
 func (t *RectTransform) WorldPosition() mgl32.Vec2 {
