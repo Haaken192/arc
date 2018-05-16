@@ -24,11 +24,31 @@ package scene
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/haakenlabs/arc/core"
 	"github.com/juju/errors"
 )
+
+type ErrUnmarshallerNotFound string
+type ErrUnmarshallerExists string
+type ErrMarshallerNotFound string
+type ErrMarshallerExists string
+
+func (e ErrUnmarshallerNotFound) Error() string {
+	return "unmarshaller for type " + string(e) + " not found"
+}
+
+func (e ErrUnmarshallerExists) Error() string {
+	return "unmarshaller for type " + string(e) + " already exists"
+}
+
+func (e ErrMarshallerNotFound) Error() string {
+	return "marshaller for type " + string(e) + " not found"
+}
+
+func (e ErrMarshallerExists) Error() string {
+	return "marshaller for type " + string(e) + " already exists"
+}
 
 type UnmarshalComponentFunc func([]byte) (Component, error)
 
@@ -57,12 +77,12 @@ func ComponentUnmarshaller(t string) (UnmarshalComponentFunc, error) {
 		return fn, nil
 	}
 
-	return nil, fmt.Errorf("no component unmarshaller for type: %s", t)
+	return nil, ErrMarshallerNotFound(t)
 }
 
 func AddComponentUnmarshaller(t string, fn UnmarshalComponentFunc) error {
 	if _, dup := componentUnmarshallers[t]; dup {
-		return fmt.Errorf("duplicate component unmarshaller for type: %s", t)
+		return ErrMarshallerExists(t)
 	}
 
 	componentUnmarshallers[t] = fn
@@ -103,7 +123,7 @@ func BuildGameObject(data *JSONGameObject, parent *GameObject) (*GameObject, err
 func BuildScene(r *core.Resource) (*Scene, error) {
 	data := &JSONScene{}
 	if err := json.Unmarshal(r.Bytes(), data); err != nil {
-		return nil, errors.Annotate(err, "json unmarshal err")
+		return nil, errors.Annotate(err, "json unmarshal error")
 	}
 
 	s := NewScene(data.Name)
@@ -111,11 +131,11 @@ func BuildScene(r *core.Resource) (*Scene, error) {
 	for _, v := range data.Objects {
 		o, err := BuildGameObject(v, nil)
 		if err != nil {
-			return nil, errors.Annotate(err, "build object err")
+			return nil, errors.Annotate(err, "build object error")
 		}
 
 		if err := s.AddObject(o, nil); err != nil {
-			return nil, errors.Annotate(err, "add object err")
+			return nil, errors.Annotate(err, "add object error")
 		}
 	}
 

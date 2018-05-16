@@ -46,6 +46,12 @@ const (
 
 const MaterialMaxTextures = 16
 
+type MaterialData struct {
+	Textures         map[string]string                  `json:"textures"`
+	ShaderProperties map[string]graphics.ShaderProperty `json:"shader_properties"`
+	Shader           string                             `json:"shader"`
+}
+
 type Material struct {
 	core.BaseObject
 
