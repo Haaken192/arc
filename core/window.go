@@ -507,9 +507,9 @@ func NewWindowSystem(title string) *WindowSystem {
 		title:             title,
 		focus:             true,
 		cursorEnter:       true,
-		mouseButtonEvents: make([]EventMouseButton, 4),
-		keyEvents:         make([]EventKey, 4),
-		joystickEvents:    make([]EventJoy, 4),
+		mouseButtonEvents: []EventMouseButton{},
+		keyEvents:         []EventKey{},
+		joystickEvents:    []EventJoy{},
 	}
 }
 

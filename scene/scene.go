@@ -64,9 +64,6 @@ func (s *Scene) Load() error {
 		return nil
 	}
 
-	s.graph = NewGraph(s)
-	s.environment = NewEnvironment()
-
 	if s.LoadFunc != nil {
 		s.LoadFunc()
 	}
@@ -164,6 +161,9 @@ func NewScene(name string) *Scene {
 	s := &Scene{
 		name: name,
 	}
+
+	s.graph = NewGraph(s)
+	s.environment = NewEnvironment()
 
 	return s
 }
