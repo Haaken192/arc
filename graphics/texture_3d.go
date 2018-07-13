@@ -25,15 +25,16 @@ package graphics
 import (
 	"github.com/go-gl/gl/v4.3-core/gl"
 
-	"github.com/haakenlabs/arc/pkg/math"
 	"github.com/haakenlabs/arc/system/instance"
 )
+
+var _ Texture = &Texture3D{}
 
 type Texture3D struct {
 	BaseTexture
 }
 
-func NewTexture3D(size math.IVec2, layers int32, format TextureFormat) *Texture3D {
+func NewTexture3D(cfg *TextureConfig) *Texture3D {
 	t := &Texture3D{}
 
 	t.textureType = gl.TEXTURE_3D
@@ -41,32 +42,18 @@ func NewTexture3D(size math.IVec2, layers int32, format TextureFormat) *Texture3
 	t.SetName("Texture3D")
 	instance.MustAssign(t)
 
-	t.size = size
+	t.size = cfg.Size
 	t.uploadFunc = t.Upload
 
-	t.internalFormat = TextureFormatToInternal(format)
-	t.glFormat = TextureFormatToFormat(format)
-	t.storageFormat = TextureFormatToStorage(format)
+	t.internalFormat = TextureFormatToInternal(cfg.Format)
+	t.glFormat = TextureFormatToFormat(cfg.Format)
+	t.storageFormat = TextureFormatToStorage(cfg.Format)
 
 	return t
 }
 
-func NewTexture3DFrom(texture Texture3D) *Texture3D {
-	t := &Texture3D{}
-
-	t.textureType = gl.TEXTURE_3D
-
-	t.SetName("Texture3D")
-	instance.MustAssign(t)
-
-	t.size = texture.Size()
-	t.uploadFunc = t.Upload
-
-	t.internalFormat = texture.GLInternalFormat()
-	t.glFormat = texture.GLFormat()
-	t.storageFormat = texture.GLStorageFormat()
-
-	return t
+func (t *Texture3D) Type() TextureType {
+	return TextureType3D
 }
 
 func (t *Texture3D) Upload() {

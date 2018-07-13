@@ -25,9 +25,10 @@ package graphics
 import (
 	"github.com/go-gl/gl/v4.3-core/gl"
 
-	"github.com/haakenlabs/arc/pkg/math"
 	"github.com/haakenlabs/arc/system/instance"
 )
+
+var _ Texture = &TextureCubemap{}
 
 type TextureCubemap struct {
 	BaseTexture
@@ -36,7 +37,7 @@ type TextureCubemap struct {
 	hdrData [6][]float32
 }
 
-func NewTextureCubemap(size math.IVec2, format TextureFormat) *TextureCubemap {
+func NewTextureCubemap(cfg *TextureConfig) *TextureCubemap {
 	t := &TextureCubemap{}
 
 	t.data = [6][]uint8{}
@@ -47,30 +48,34 @@ func NewTextureCubemap(size math.IVec2, format TextureFormat) *TextureCubemap {
 	t.SetName("TextureCubemap")
 	instance.MustAssign(t)
 
-	t.size = size
+	t.size = cfg.Size
 	t.uploadFunc = t.Upload
 
-	t.internalFormat = TextureFormatToInternal(format)
-	t.glFormat = TextureFormatToFormat(format)
-	t.storageFormat = TextureFormatToStorage(format)
+	t.internalFormat = TextureFormatToInternal(cfg.Format)
+	t.glFormat = TextureFormatToFormat(cfg.Format)
+	t.storageFormat = TextureFormatToStorage(cfg.Format)
 
 	return t
 }
 
-func (t *TextureCubemap) SetData(data []byte, offset int) {
-	if offset > 5 {
+func (t *TextureCubemap) SetLayerData(data []byte, layer int32) {
+	if layer > 5 {
 		return
 	}
 
-	t.data[offset] = data
+	t.data[layer] = data
 }
 
-func (t *TextureCubemap) SetHDRData(data []float32, offset int) {
-	if offset > 5 {
+func (t *TextureCubemap) SetHDRLayerData(data []float32, layer int32) {
+	if layer > 5 {
 		return
 	}
 
-	t.hdrData[offset] = data
+	t.hdrData[layer] = data
+}
+
+func (t *TextureCubemap) Type() TextureType {
+	return TextureTypeCubemap
 }
 
 func (t *TextureCubemap) Upload() {

@@ -25,9 +25,10 @@ package graphics
 import (
 	"github.com/go-gl/gl/v4.3-core/gl"
 
-	"github.com/haakenlabs/arc/pkg/math"
 	"github.com/haakenlabs/arc/system/instance"
 )
+
+var _ Texture = &TextureFont{}
 
 type TextureFont struct {
 	BaseTexture
@@ -35,7 +36,7 @@ type TextureFont struct {
 	data []uint8
 }
 
-func NewTextureFont(size math.IVec2) *TextureFont {
+func NewTextureFont(cfg *TextureConfig) *TextureFont {
 	t := &TextureFont{}
 
 	t.textureType = gl.TEXTURE_2D
@@ -43,7 +44,7 @@ func NewTextureFont(size math.IVec2) *TextureFont {
 	t.SetName("TextureFont")
 	instance.MustAssign(t)
 
-	t.size = size
+	t.size = cfg.Size
 	t.uploadFunc = t.Upload
 
 	t.internalFormat = gl.RGBA8
@@ -51,6 +52,10 @@ func NewTextureFont(size math.IVec2) *TextureFont {
 	t.storageFormat = gl.UNSIGNED_BYTE
 
 	return t
+}
+
+func (t *TextureFont) Type() TextureType {
+	return TextureTypeFont
 }
 
 func (t *TextureFont) Upload() {

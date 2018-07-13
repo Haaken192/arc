@@ -23,12 +23,27 @@ SOFTWARE.
 package graphics
 
 import (
-	"fmt"
-
 	"github.com/go-gl/gl/v4.3-core/gl"
 
 	"github.com/haakenlabs/arc/core"
 	"github.com/haakenlabs/arc/pkg/math"
+)
+
+type TextureConfig struct {
+	Type   TextureType
+	Format TextureFormat
+	Layers int32
+	Size   math.IVec2
+}
+
+type TextureType uint8
+
+const (
+	TextureType2D TextureType = iota
+	TextureType3D
+	TextureTypeCubemap
+	TextureTypeFont
+	TextureTypeColor
 )
 
 type TextureFormat uint32
@@ -58,66 +73,87 @@ const (
 	TextureFormatStencil8
 )
 
-type Texture interface {
-	core.Object
-
-	ActivateTexture(textureUnit uint32)
-	Bind()
-	FilterMag() int32
-	FilterMin() int32
-	GenerateMipmaps()
-	GLFormat() uint32
-	GLInternalFormat() int32
-	GLStorageFormat() uint32
-	GLTextureType() uint32
-	Height() int32
-	Layers() int32
-	MipLevels() uint32
-	Resizable() bool
-	SetFilter(magFilter, minFilter int32)
-	SetGLFormats(internalFormat int32, format uint32, storageFormat uint32)
-	SetLayers(int32)
-	SetMagFilter(magFilter int32)
-	SetMinFilter(minFilter int32)
-	SetResizable(resizable bool)
-	SetSize(size math.IVec2) error
-	SetTexFormat(format TextureFormat)
-	SetWrapR(wrapR int32)
-	SetWrapRST(wrapR, wrapS, wrapT int32)
-	SetWrapS(wrapS int32)
-	SetWrapST(wrapS, wrapT int32)
-	SetWrapT(wrapT int32)
-	Size() math.IVec2
-	TexFormat() TextureFormat
-	Reference() uint32
-	Unbind()
-	Upload()
-	Width() int32
-	WrapR() int32
-	WrapS() int32
-	WrapT() int32
-}
-
 type UploadFunc func()
 
-type BaseTexture struct {
-	core.BaseObject
+type Texture interface {
+	core.Object
+	Binder
+	Sizable
 
-	uploadFunc     UploadFunc
-	internalFormat int32
-	storageFormat  uint32
-	glFormat       uint32
-	filterMag      int32
-	filterMin      int32
-	wrapR          int32
-	wrapS          int32
-	wrapT          int32
-	layers         int32
-	reference      uint32
-	textureFormat  TextureFormat
-	size           math.IVec2
-	resizable      bool
-	textureType    uint32
+	// Type returns the TextureType of this texture.
+	Type() TextureType
+
+	// GLType() returns the OpenGL texture type.
+	GLType() uint32
+
+	// Format returns the TextureFormat of this texture.
+	Format() TextureFormat
+
+	// SetMagFilter sets the magnification filter.
+	SetMagFilter(int32)
+
+	// SetMinFilter sets the minification filter.
+	SetMinFilter(int32)
+
+	// FilterMag returns the magnification filter value.
+	FilterMag() int32
+
+	// FilterMin returns the minification filter value.
+	FilterMin() int32
+
+	// WrapR returns the wrap value for the R dimension.
+	WrapR() int32
+
+	// WrapS returns the wrap value for the S dimension.
+	WrapS() int32
+
+	// WrapT returns the wrap value for the T dimension.
+	WrapT() int32
+
+	// SetWrapR sets the wrap value for the S dimension.
+	SetWrapR(int32)
+
+	// SetWrapRST sets the wrap value for the R, S, and T dimensions.
+	SetWrapRST(int32, int32, int32)
+
+	// SetWrapS sets the wrap value for the S dimension.
+	SetWrapS(int32)
+
+	// SetWrapST sets the wrap value for the S and T dimensions.
+	SetWrapST(int32, int32)
+
+	// SetWrapT sets the wrap value for the T dimension.
+	SetWrapT(int32)
+
+	// Activate binds and sets the texture active for the provided unit.
+	Activate(uint32)
+
+	// MipLevels returns the number of mip maps for this texture.
+	MipLevels() uint32
+
+	// GenerateMipmaps will generate mip maps for the texture (if supported).
+	GenerateMipmaps()
+
+	// Layers returns the number of layers for this texture.
+	Layers() int32
+
+	// SetLayers sets the number of layers for this texture (if supported).
+	SetLayers(int32)
+
+	// SetFormat sets the format for this texture (if supported).
+	SetFormat(TextureFormat)
+
+	// SetData sets the data for this texture (LDR-values only).
+	SetData([]uint8)
+
+	// SetLayerData sets the data for the texture at a specific layer (LDR-values only).
+	SetLayerData([]uint8, int32)
+
+	// SetHDRData sets the data for this texture (HDR-values only).
+	SetHDRData([]float32)
+
+	// SetHDRLayerData sets the data for the texture at a specific layer (HDR-values only).
+	SetHDRLayerData([]float32, int32)
 }
 
 func TextureFormatToInternal(format TextureFormat) int32 {
@@ -273,248 +309,19 @@ func TextureFormatToStorage(format TextureFormat) uint32 {
 	return 0
 }
 
-func (t *BaseTexture) Alloc() error {
-	if t.reference != 0 {
+func NewTexture(cfg *TextureConfig) Texture {
+	switch cfg.Type {
+	case TextureType2D:
+		return NewTexture2D(cfg)
+	case TextureType3D:
+		return NewTexture3D(cfg)
+	case TextureTypeCubemap:
+		return NewTextureCubemap(cfg)
+	case TextureTypeFont:
+		return NewTextureFont(cfg)
+	case TextureTypeColor:
+		return NewTextureColor()
+	default:
 		return nil
 	}
-
-	gl.GenTextures(1, &t.reference)
-
-	t.filterMag = gl.LINEAR
-	t.filterMin = gl.LINEAR
-	t.wrapR = gl.CLAMP_TO_EDGE
-	t.wrapS = gl.CLAMP_TO_EDGE
-	t.wrapT = gl.CLAMP_TO_EDGE
-	t.resizable = true
-	t.layers = 1
-
-	t.uploadFunc()
-
-	t.SetFilter(t.filterMag, t.filterMin)
-	t.SetWrapRST(t.wrapR, t.wrapS, t.wrapT)
-
-	return nil
-}
-
-// Release
-func (t *BaseTexture) Dealloc() {
-	if t.reference != 0 {
-		gl.DeleteTextures(1, &t.reference)
-		t.reference = 0
-	}
-}
-
-func (t *BaseTexture) TextureType() uint32 {
-	return t.textureType
-}
-
-// ActivateTexture
-func (t *BaseTexture) ActivateTexture(textureUnit uint32) {
-	gl.ActiveTexture(textureUnit)
-	t.Bind()
-}
-
-// Bind
-func (t *BaseTexture) Bind() {
-	gl.BindTexture(t.textureType, t.reference)
-}
-
-// FilterMag
-func (t *BaseTexture) FilterMag() int32 {
-	return t.filterMag
-}
-
-// FilterMin
-func (t *BaseTexture) FilterMin() int32 {
-	return t.filterMin
-}
-
-// GenerateMipmaps
-func (t *BaseTexture) GenerateMipmaps() {
-
-}
-
-// GLFormat
-func (t *BaseTexture) GLFormat() uint32 {
-	return t.glFormat
-}
-
-// GLInternalFormat
-func (t *BaseTexture) GLInternalFormat() int32 {
-	return t.internalFormat
-}
-
-// GLStorageFormat
-func (t *BaseTexture) GLStorageFormat() uint32 {
-	return t.storageFormat
-}
-
-// GLTextureType
-func (t *BaseTexture) GLTextureType() uint32 {
-	return t.textureType
-}
-
-// Height
-func (t *BaseTexture) Height() int32 {
-	return t.size.Y()
-}
-
-// Layers
-func (t *BaseTexture) Layers() int32 {
-	return t.layers
-}
-
-func (t *BaseTexture) SetLayers(layers int32) {
-	t.layers = layers
-}
-
-// MipLevels
-func (t *BaseTexture) MipLevels() uint32 {
-	return 1
-}
-
-// Resizable
-func (t *BaseTexture) Resizable() bool {
-	return t.resizable
-}
-
-// SetFilter
-func (t *BaseTexture) SetFilter(magFilter, minFilter int32) {
-	t.SetMagFilter(magFilter)
-	t.SetMinFilter(minFilter)
-}
-
-// SetGLFormats
-func (t *BaseTexture) SetGLFormats(internalFormat int32, format uint32, storageFormat uint32) {
-	t.internalFormat = internalFormat
-	t.glFormat = format
-	t.storageFormat = storageFormat
-
-	//t.Upload()
-	t.uploadFunc()
-}
-
-// SetMagFilter
-func (t *BaseTexture) SetMagFilter(magFilter int32) {
-	t.filterMag = magFilter
-	gl.TexParameteri(t.textureType, gl.TEXTURE_MAG_FILTER, t.filterMag)
-}
-
-// SetMinFilter
-func (t *BaseTexture) SetMinFilter(minFilter int32) {
-	t.filterMin = minFilter
-	gl.TexParameteri(t.textureType, gl.TEXTURE_MIN_FILTER, t.filterMin)
-}
-
-// SetResizable
-func (t *BaseTexture) SetResizable(resizable bool) {
-	t.resizable = resizable
-}
-
-// SetSize
-func (t *BaseTexture) SetSize(size math.IVec2) error {
-	if !t.resizable {
-		return fmt.Errorf("texture setSize error: texture %d is not resizable", t.reference)
-	}
-	if size.X() <= 0 || size.Y() <= 0 {
-		return fmt.Errorf("texture setSize error: invalid size: %s", size)
-	}
-
-	t.size = size
-	t.uploadFunc()
-
-	return nil
-}
-
-// SetTexFormat
-func (t *BaseTexture) SetTexFormat(format TextureFormat) {
-	t.SetGLFormats(TextureFormatToInternal(format), TextureFormatToFormat(format), TextureFormatToStorage(format))
-}
-
-// SetWrapR
-func (t *BaseTexture) SetWrapR(wrapR int32) {
-	t.wrapR = wrapR
-	gl.TexParameteri(t.textureType, gl.TEXTURE_WRAP_R, t.wrapR)
-	if t.wrapR == gl.CLAMP_TO_BORDER {
-		color := [4]float32{}
-		gl.TexParameterfv(t.textureType, gl.TEXTURE_BORDER_COLOR, &color[0])
-	}
-}
-
-// SetWrapRST
-func (t *BaseTexture) SetWrapRST(wrapR, wrapS, wrapT int32) {
-	t.SetWrapR(wrapR)
-	t.SetWrapS(wrapS)
-	t.SetWrapT(wrapT)
-}
-
-// SetWrapS
-func (t *BaseTexture) SetWrapS(wrapS int32) {
-	t.wrapS = wrapS
-	gl.TexParameteri(t.textureType, gl.TEXTURE_WRAP_S, t.wrapS)
-	if t.wrapS == gl.CLAMP_TO_BORDER {
-		color := [4]float32{}
-		gl.TexParameterfv(t.textureType, gl.TEXTURE_BORDER_COLOR, &color[0])
-	}
-}
-
-// SetWrapST
-func (t *BaseTexture) SetWrapST(wrapS, wrapT int32) {
-	t.SetWrapS(wrapS)
-	t.SetWrapT(wrapT)
-}
-
-// SetWrapT
-func (t *BaseTexture) SetWrapT(wrapT int32) {
-	t.wrapT = wrapT
-	gl.TexParameteri(t.textureType, gl.TEXTURE_WRAP_T, t.wrapT)
-	if t.wrapT == gl.CLAMP_TO_BORDER {
-		color := [4]float32{}
-		gl.TexParameterfv(t.textureType, gl.TEXTURE_BORDER_COLOR, &color[0])
-	}
-}
-
-// Size
-func (t *BaseTexture) Size() math.IVec2 {
-	return t.size
-}
-
-// TexFormat
-func (t *BaseTexture) TexFormat() TextureFormat {
-	return t.textureFormat
-}
-
-// Reference
-func (t *BaseTexture) Reference() uint32 {
-	return t.reference
-}
-
-// Upload
-func (t *BaseTexture) Upload() {
-	panic("Unimplemented!")
-}
-
-// Unbind
-func (t *BaseTexture) Unbind() {
-	gl.BindTexture(t.textureType, 0)
-}
-
-// Width
-func (t *BaseTexture) Width() int32 {
-	return t.size.X()
-}
-
-// WrapR
-func (t *BaseTexture) WrapR() int32 {
-	return t.wrapR
-}
-
-// WrapS
-func (t *BaseTexture) WrapS() int32 {
-	return t.wrapS
-}
-
-// WrapT
-func (t *BaseTexture) WrapT() int32 {
-	return t.wrapT
 }

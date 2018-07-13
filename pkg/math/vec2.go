@@ -39,7 +39,7 @@ func (v DVec2) Y() float64 {
 }
 
 func (v DVec2) String() string {
-	return fmt.Sprintf("DVec2(%d, %d)", v.X(), v.Y())
+	return fmt.Sprintf("DVec2(%f, %f)", v.X(), v.Y())
 }
 
 type IVec2 [2]int32

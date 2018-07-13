@@ -60,6 +60,13 @@ func (e ErrAssetType) Error() string {
 	return "asset: type assertion error for asset: " + string(e)
 }
 
+// ErrAssetType reports that the asset has already been loaded.
+type ErrAssetLoaded string
+
+func (e ErrAssetLoaded) Error() string {
+	return "asset: already loaded: " + string(e)
+}
+
 // ErrAssetNotFound reports that the handler is not registered.
 type ErrHandlerNotFound string
 
@@ -83,6 +90,12 @@ type AssetHandler interface {
 
 	// Count returns the number of assets tracked by this handler.
 	Count() int
+}
+
+type Asset interface {
+	Load(*Resource) error
+	Loaded() bool
+	Unload()
 }
 
 var _ System = &AssetSystem{}

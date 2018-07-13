@@ -27,9 +27,10 @@ import (
 
 	"github.com/go-gl/gl/v4.3-core/gl"
 
-	"github.com/haakenlabs/arc/pkg/math"
 	"github.com/haakenlabs/arc/system/instance"
 )
+
+var _ Texture = &Texture2D{}
 
 type Texture2D struct {
 	BaseTexture
@@ -38,9 +39,7 @@ type Texture2D struct {
 	hdrData []float32
 }
 
-// Texture2D Methods
-
-func NewTexture2D(size math.IVec2, format TextureFormat) *Texture2D {
+func NewTexture2D(cfg *TextureConfig) *Texture2D {
 	t := &Texture2D{}
 
 	t.textureType = gl.TEXTURE_2D
@@ -48,32 +47,18 @@ func NewTexture2D(size math.IVec2, format TextureFormat) *Texture2D {
 	t.SetName("Texture2D")
 	instance.MustAssign(t)
 
-	t.size = size
+	t.size = cfg.Size
 	t.uploadFunc = t.Upload
 
-	t.internalFormat = TextureFormatToInternal(format)
-	t.glFormat = TextureFormatToFormat(format)
-	t.storageFormat = TextureFormatToStorage(format)
+	t.internalFormat = TextureFormatToInternal(cfg.Format)
+	t.glFormat = TextureFormatToFormat(cfg.Format)
+	t.storageFormat = TextureFormatToStorage(cfg.Format)
 
 	return t
 }
 
-func NewTexture2DFrom(texture Texture2D) *Texture2D {
-	t := &Texture2D{}
-
-	t.textureType = gl.TEXTURE_2D
-
-	t.SetName("Texture2D")
-	instance.MustAssign(t)
-
-	t.size = texture.Size()
-	t.uploadFunc = t.Upload
-
-	t.internalFormat = texture.GLInternalFormat()
-	t.glFormat = texture.GLFormat()
-	t.storageFormat = texture.GLStorageFormat()
-
-	return t
+func (t *Texture2D) Type() TextureType {
+	return TextureType2D
 }
 
 func (t *Texture2D) Upload() {

@@ -22,47 +22,24 @@ SOFTWARE.
 
 package graphics
 
-import (
-	"github.com/go-gl/gl/v4.3-core/gl"
+import "github.com/haakenlabs/arc/pkg/math"
 
-	"github.com/haakenlabs/arc/system/instance"
-)
+// Binder is an object which can bind or unbind itself in the renderer.
+type Binder interface {
+	// Bind will make itself the active object for that type.
+	Bind()
 
-var _ Texture = &TextureColor{}
+	// Unbind will release itself as the active object for that type.
+	Unbind()
 
-type TextureColor struct {
-	BaseTexture
-
-	color int32
+	// Reference gets the reference ID of the object.
+	Reference() uint32
 }
 
-func NewTextureColor() *TextureColor {
-	t := &TextureColor{}
-
-	t.textureType = gl.TEXTURE_3D
-
-	t.SetName("TextureColor")
-	instance.MustAssign(t)
-
-	t.uploadFunc = t.Upload
-
-	return t
-}
-
-func (t *TextureColor) Type() TextureType {
-	return TextureTypeColor
-}
-
-func (t *TextureColor) Upload() {
-	t.Bind()
-	gl.TexImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, t.size.X(), t.size.Y(), 0, gl.RGBA, gl.FLOAT, gl.Ptr(t.color))
-}
-
-func (t *TextureColor) Color() int32 {
-	return t.color
-}
-
-func (t *TextureColor) SetColor(color int32) {
-	t.color = color
-	t.uploadFunc()
+type Sizable interface {
+	Size() math.IVec2
+	SetSize(math.IVec2)
+	SetResizable(bool)
+	Resize()
+	Resizable() bool
 }
